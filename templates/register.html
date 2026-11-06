@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block content_public %}
+<script>window.location.href = "{% url 'login' %}#register";</script>
+{% endblock %}
+
+<style>
+    .split-login {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+    @media (max-width: 900px) {
+        .split-login { grid-template-columns: 1fr; }
+        .edu-panel { display: none; }
+    }
+    .edu-panel {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+        color: white; padding: 60px;
+        display: flex; flex-direction: column; justify-content: center;
+        position: relative; overflow: hidden;
+    }
+    .edu-panel::before, .edu-panel::after {
+        content: ''; position: absolute; border-radius: 50%;
+        background: rgba(255,255,255,0.08); filter: blur(50px);
+    }
+    .edu-panel::before { width: 400px; height: 400px; top: -100px; right: -100px; animation: float 12s ease-in-out infinite; }
+    .edu-panel::after { width: 300px; height: 300px; bottom: -80px; left: -60px; animation: float 15s ease-in-out infinite reverse; }
+    @keyframes float {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50% { transform: translate(30px,20px) scale(1.1); }
+    }
+    .edu-logo {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 1.3em; font-weight: 800;
+        margin-bottom: 48px;
+        position: relative; z-index: 1;
+    }
+    .edu-logo .icon {
+        width: 48px; height: 48px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 13px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2em;
+    }
+    .edu-headline {
+        font-size: 2.4em; font-weight: 800;
+        line-height: 1.15; letter-spacing: -0.03em;
+        margin-bottom: 16px;
+        position: relative; z-index: 1;
+    }
+    .edu-sub {
+        font-size: 1.05em; opacity: 0.9;
+        margin-bottom: 40px;
+        position: relative; z-index: 1;
+    }
+    .benefit-list { position: relative; z-index: 1; }
+    .benefit {
+        display: flex; gap: 14px; align-items: flex-start;
+        margin-bottom: 20px;
+        animation: fadeInUp 0.6s ease both;
+    }
+    .benefit:nth-child(1) { animation-delay: 0.1s; }
+    .benefit:nth-child(2) { animation-delay: 0.2s; }
+    .benefit:nth-child(3) { animation-delay: 0.3s; }
+    .benefit-icon {
+        width: 40px; height: 40px; flex-shrink: 0;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2em;
+    }
+    .benefit-text strong { display: block; font-size: 0.95em; margin-bottom: 2px; }
+    .benefit-text span { font-size: 0.85em; opacity: 0.85; line-height: 1.4; }
+
+    .login-form-panel {
+        display: flex; align-items: center; justify-content: center;
+        padding: 40px; background: var(--bg);
+        position: relative; z-index: 1;
+    }
+    .login-form-box {
+        width: 100%; max-width: 420px;
+        animation: fadeInUp 0.6s ease 0.15s both;
+    }
+    .login-form-box h2 {
+        font-size: 2em; font-weight: 800;
+        letter-spacing: -0.03em; margin-bottom: 6px;
+    }
+    .login-form-box .sub {
+        color: var(--text-muted);
+        margin-bottom: 28px;
+    }
+    .input-group { position: relative; margin-bottom: 16px; }
+    .input-group label {
+        display: block; font-size: 0.85em;
+        font-weight: 600; margin-bottom: 8px;
+    }
+    .input-group input {
+        width: 100%; padding: 13px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 11px; font-size: 0.95em;
+        font-family: inherit; transition: all 0.2s;
+        background: var(--surface);
+    }
+    .input-group input:focus {
+        outline: none; border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+    }
+    .password-hint {
+        font-size: 0.75em; color: var(--text-muted);
+        margin-top: 4px;
+    }
+    .role-selector {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 10px; margin-bottom: 20px;
+    }
+    .role-option {
+        border: 1.5px solid var(--border);
+        border-radius: 11px; padding: 14px;
+        cursor: pointer; text-align: center;
+        transition: all 0.2s;
+        background: var(--surface);
+    }
+    .role-option:hover { border-color: var(--primary); background: #fafbff; }
+    .role-option.selected {
+        border-color: var(--primary);
+        background: #eef2ff;
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    .role-option input { display: none; }
+    .role-option .emoji { font-size: 1.8em; display: block; margin-bottom: 4px; }
+    .role-option .role-name { font-weight: 600; font-size: 0.9em; }
+    .role-option .role-desc { font-size: 0.75em; color: var(--text-muted); margin-top: 2px; }
+
+    .login-btn {
+        width: 100%; padding: 15px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white; border: none;
+        border-radius: 11px;
+        font-size: 1em; font-weight: 700;
+        cursor: pointer; font-family: inherit;
+        transition: all 0.25s;
+        margin-top: 4px;
+    }
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(79,70,229,0.35);
+    }
+    .login-btn:active { transform: translateY(0) scale(0.98); }
+
+    .switch-link {
+        text-align: center; margin-top: 24px;
+        font-size: 0.9em; color: var(--text-muted);
+    }
+    .switch-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .switch-link a:hover { text-decoration: underline; }
+
+    .alert { padding: 12px 16px; border-radius: 10px; font-size: 0.88em; margin-bottom: 16px; animation: scaleIn 0.3s ease; }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="split-login">
+    <div class="edu-panel">
+        <div class="edu-logo">
+            <div class="icon">🎓</div>
+            <span>Exam Portal</span>
+        </div>
+        <div class="edu-headline">Start your<br>learning journey</div>
+        <div class="edu-sub">Join thousands of students mastering French, English, and Yoruba.</div>
+
+        <div class="benefit-list">
+            <div class="benefit">
+                <div class="benefit-icon">📝</div>
+                <div class="benefit-text">
+                    <strong>150 curated questions</strong>
+                    <span>50 per language, covering real conversational skills</span>
+                </div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">⚡</div>
+                <div class="benefit-text">
+                    <strong>Instant scoring</strong>
+                    <span>Know your results the moment you submit</span>
+                </div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">🏆</div>
+                <div class="benefit-text">
+                    <strong>Achievements & streaks</strong>
+                    <span>Stay motivated with badges and daily goals</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-form-panel">
+        <div class="login-form-box">
+            <h2>Create account</h2>
+            <p class="sub">Join the exam portal in 30 seconds</p>
+
+            {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label style="font-size:0.85em;font-weight:600;margin-bottom:8px;display:block;">I am a...</label>
+                <div class="role-selector">
+                    <label class="role-option selected" data-role="student">
+                        <input type="radio" name="role" value="student" checked>
+                        <span class="emoji">🎓</span>
+                        <div class="role-name">Student</div>
+                        <div class="role-desc">Take exams</div>
+                    </label>
+                    <label class="role-option" data-role="teacher">
+                        <input type="radio" name="role" value="teacher">
+                        <span class="emoji">📚</span>
+                        <div class="role-name">Teacher</div>
+                        <div class="role-desc">Create questions</div>
+                    </label>
+                </div>
+
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autofocus
+                           placeholder="Choose a username" value="{{ request.POST.username|default:'' }}">
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required
+                           placeholder="At least 6 characters">
+                    <div class="password-hint">Use letters and numbers for a stronger password.</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirm_password">Confirm password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required
+                           placeholder="Re-enter your password">
+                </div>
+
+                <button type="submit" class="login-btn">Create account →</button>
+            </form>
+
+            <div class="switch-link">
+                Already have an account? <a href="{% url 'login' %}">Sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Role selector interaction
+    document.querySelectorAll('.role-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+        });
+    });
+
+    // Password match validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const pw = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm_password').value;
+        if (pw !== confirm) {
+            e.preventDefault();
+            alert('Passwords do not match. Please try again.');
+        }
+    });
+</script>
+{% endblock %}

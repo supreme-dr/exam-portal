@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Result{% endblock %}
+{% block content %}
+<div class="page-header" style="text-align:center;">
+    <h1>Exam Complete 🎉</h1>
+    <p>{{ attempt.language }} · {{ attempt.submitted_at|date:"M d, Y · H:i" }}</p>
+</div>
+
+<div class="card" style="text-align:center;padding:40px;">
+    <div class="result-circle {% if attempt.score >= 40 %}good{% elif attempt.score >= 25 %}avg{% else %}bad{% endif %}" id="scoreCircle">
+        <span id="scoreNum">0</span>
+    </div>
+    <p style="color:var(--text-muted);font-size:1.05em;margin-top:8px;">
+        out of {{ attempt.total_questions }} questions
+    </p>
+    <a href="{% url 'dashboard' %}" class="btn btn-lg" style="margin-top:24px;">Back to Dashboard</a>
+</div>
+
+<script>
+(function() {
+    const target = {{ attempt.score }};
+    const numEl = document.getElementById('scoreNum');
+    const total = {{ attempt.total_questions }};
+    let current = 0;
+
+    function countUp() {
+        if (current >= target) { numEl.textContent = target; return; }
+        current++;
+        numEl.textContent = current;
+        setTimeout(countUp, Math.max(30, 800 / Math.max(target, 1)));
+    }
+    countUp();
+
+    const passed = target >= 25;
+    const circle = document.getElementById('scoreCircle');
+
+    if (passed) {
+        const colors = ['#4f46e5','#7c3aed','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4'];
+        for (let i = 0; i < 60; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.animationDelay = (Math.random() * 0.8) + 's';
+            c.style.animationDuration = (2 + Math.random() * 2) + 's';
+            c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 5000);
+        }
+    } else {
+        circle.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-8px)' },
+            { transform: 'translateX(8px)' },
+            { transform: 'translateX(0)' }
+        ], { duration: 400, iterations: 2 });
+    }
+})();
+</script>
+{% endblock %}

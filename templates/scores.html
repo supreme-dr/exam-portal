@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}All Scores{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>All Scores</h1>
+    <p>Every student submission across the platform.</p>
+</div>
+<div class="card">
+    <table>
+        <thead><tr><th>Student</th><th>Language</th><th>Score</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for a in attempts %}
+        <tr>
+            <td><strong>{{ a.student.username }}</strong></td>
+            <td>{{ a.language }}</td>
+            <td>
+                <span class="badge {% if a.score >= 40 %}badge-green{% elif a.score >= 25 %}badge-yellow{% else %}badge-red{% endif %}">
+                    {{ a.score }} / {{ a.total_questions }}
+                </span>
+            </td>
+            <td style="color:var(--text-muted);">{{ a.submitted_at|date:"M d, Y · H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty-state">No scores yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

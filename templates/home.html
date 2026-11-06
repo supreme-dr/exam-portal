@@ -1,0 +1,468 @@
+{% extends 'base.html' %}
+{% block title %}Exam Portal — Learn French, English, Yoruba{% endblock %}
+{% block content_public %}
+
+<style>
+    .landing {
+        min-height: 100vh;
+        display: flex; flex-direction: column;
+        position: relative; z-index: 1;
+        color: white;
+    }
+
+    /* === Hero === */
+    .hero-wrap {
+        flex: 1;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        padding: 80px 24px 40px;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 8px 18px; border-radius: 999px;
+        font-size: 0.82em; font-weight: 600;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.6s ease both;
+    }
+    .hero-badge .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 0 4px rgba(16,185,129,0.3);
+        animation: pulseDot 2s ease infinite;
+    }
+    @keyframes pulseDot {
+        0%,100% { box-shadow: 0 0 0 4px rgba(16,185,129,0.3); }
+        50% { box-shadow: 0 0 0 8px rgba(16,185,129,0.1); }
+    }
+
+    .hero-h1 {
+        font-size: clamp(2.4em, 6vw, 4.4em);
+        font-weight: 900; line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 24px;
+        animation: fadeInUp 0.7s ease 0.1s both;
+        max-width: 900px;
+    }
+    .hero-h1 .gradient-text {
+        background: linear-gradient(135deg, #fbbf24, #f472b6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .typewriter {
+        display: inline-block;
+        min-height: 1.2em;
+        border-right: 3px solid rgba(255,255,255,0.8);
+        padding-right: 4px;
+        animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+        50% { border-color: transparent; }
+    }
+
+    .hero-p {
+        font-size: 1.15em;
+        color: rgba(255,255,255,0.75);
+        max-width: 600px;
+        margin-bottom: 40px;
+        animation: fadeInUp 0.7s ease 0.2s both;
+    }
+
+    .hero-cta {
+        display: flex; gap: 14px; flex-wrap: wrap;
+        justify-content: center;
+        animation: fadeInUp 0.7s ease 0.3s both;
+    }
+    .btn-glass {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 15px 34px; border-radius: 12px;
+        font-weight: 700; font-size: 1em;
+        text-decoration: none; cursor: pointer;
+        background: rgba(255,255,255,0.12);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: white;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-glass:hover {
+        background: rgba(255,255,255,0.22);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+    .btn-primary-glow {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 15px 34px; border-radius: 12px;
+        font-weight: 700; font-size: 1em;
+        text-decoration: none; cursor: pointer;
+        background: linear-gradient(135deg, #fbbf24, #f97316);
+        color: #1f2937;
+        border: none;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 8px 30px rgba(251,191,36,0.45);
+        animation: glowPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+        0%,100% { box-shadow: 0 8px 30px rgba(251,191,36,0.45); }
+        50% { box-shadow: 0 8px 50px rgba(251,191,36,0.7); }
+    }
+    .btn-primary-glow:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 50px rgba(251,191,36,0.6);
+    }
+
+    /* === Language orbs === */
+    .orb-row {
+        display: flex; gap: 24px; flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 64px;
+        animation: fadeInUp 0.7s ease 0.5s both;
+    }
+    .lang-orb {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 12px;
+        text-decoration: none; color: white;
+        cursor: pointer;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .lang-orb:hover { transform: translateY(-8px); }
+    .orb-circle {
+        width: 110px; height: 110px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.8em;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.15);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+        position: relative;
+    }
+    .orb-circle::after {
+        content: ''; position: absolute; inset: -4px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        background: linear-gradient(135deg, rgba(251,191,36,0.6), rgba(168,85,247,0.6)) border-box;
+        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .lang-orb:hover .orb-circle::after { opacity: 1; }
+    .lang-orb:hover .orb-circle {
+        box-shadow: 0 15px 50px rgba(168,85,247,0.35);
+    }
+    .orb-label {
+        font-weight: 700; font-size: 0.95em;
+        letter-spacing: -0.01em;
+    }
+    .orb-count {
+        font-size: 0.78em; color: rgba(255,255,255,0.6);
+    }
+
+        /* ===== MOBILE FIXES FOR HOME PAGE ===== */
+    @media (max-width: 900px) {
+        .hero-wrap {
+            padding: 60px 16px 30px !important;
+        }
+        .hero-badge {
+            font-size: 0.75em !important;
+            padding: 6px 14px !important;
+            margin-bottom: 24px !important;
+        }
+        .hero-h1 {
+            font-size: 1.9em !important;
+            line-height: 1.15 !important;
+            margin-bottom: 16px !important;
+        }
+        .hero-p {
+            font-size: 0.95em !important;
+            margin-bottom: 28px !important;
+            padding: 0 10px !important;
+        }
+        .hero-cta {
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 12px !important;
+            padding: 0 10px !important;
+        }
+        .btn-primary-glow, .btn-glass {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 14px 20px !important;
+            font-size: 0.95em !important;
+        }
+        
+        /* Fix the language orbs */
+        .orb-row {
+            gap: 16px !important;
+            margin-top: 40px !important;
+        }
+        .orb-circle {
+            width: 80px !important;
+            height: 80px !important;
+            font-size: 2em !important;
+        }
+        .orb-label {
+            font-size: 0.85em !important;
+        }
+        .orb-count {
+            font-size: 0.7em !important;
+        }
+
+        /* Fix the stats strip */
+        .stats-strip {
+            grid-template-columns: repeat(2, 1fr) !important;
+            margin-top: 40px !important;
+            border-radius: 16px !important;
+        }
+        .stat-cell {
+            padding: 20px 10px !important;
+        }
+        .stat-cell .num {
+            font-size: 1.8em !important;
+        }
+        .stat-cell .lbl {
+            font-size: 0.72em !important;
+        }
+
+        /* Fix the feature cards */
+        .features-grid {
+            grid-template-columns: 1fr !important;
+            margin-top: 40px !important;
+            gap: 14px !important;
+        }
+        .feat {
+            padding: 20px !important;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .hero-h1 {
+            font-size: 1.6em !important;
+        }
+        .orb-circle {
+            width: 70px !important;
+            height: 70px !important;
+            font-size: 1.6em !important;
+        }
+    }
+
+    /* === Stats strip === */
+    .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 80px auto 0;
+        border: 1px solid rgba(255,255,255,0.15);
+        animation: fadeInUp 0.7s ease 0.6s both;
+    }
+    .stat-cell {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(20px);
+        padding: 28px 20px;
+        text-align: center;
+    }
+    .stat-cell .num {
+        font-size: 2.2em; font-weight: 900;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #fbbf24, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-variant-numeric: tabular-nums;
+    }
+    .stat-cell .lbl {
+        font-size: 0.82em;
+        color: rgba(255,255,255,0.65);
+        margin-top: 4px;
+    }
+
+    /* === Feature cards === */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 80px auto 0;
+        animation: fadeInUp 0.7s ease 0.7s both;
+    }
+    .feat {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        padding: 28px;
+        transition: all 0.3s;
+    }
+    .feat:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateY(-4px);
+        border-color: rgba(255,255,255,0.25);
+    }
+    .feat-icon {
+        font-size: 2em; margin-bottom: 14px; display: block;
+    }
+    .feat h3 { font-size: 1.05em; font-weight: 700; margin-bottom: 6px; }
+    .feat p { font-size: 0.88em; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+    /* === Footer === */
+    .landing-footer {
+        text-align: center;
+        padding: 40px 24px;
+        font-size: 0.85em;
+        color: rgba(255,255,255,0.5);
+        animation: fadeInUp 0.7s ease 0.9s both;
+    }
+</style>
+
+<div class="landing">
+    <div class="hero-wrap">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Live exam platform · 150 questions
+        </div>
+
+        <h1 class="hero-h1">
+            Master <span class="gradient-text">French, English</span><br>
+            and <span class="gradient-text">Yoruba</span> through
+            <br><span class="typewriter" id="typewriter"></span>
+        </h1>
+
+        <p class="hero-p">
+            Fifty questions per language. Instant scoring. Progress tracking. Everything you need to test and improve your fluency — in one place.
+        </p>
+
+        <div class="hero-cta">
+            <a href="{% url 'login' %}" class="btn-primary-glow">
+                Start your exam →
+            </a>
+            <a href="{% url 'register' %}" class="btn-glass">
+                Create free account
+            </a>
+        </div>
+
+        <div class="orb-row">
+            <a href="{% url 'login' %}" class="lang-orb">
+                <div class="orb-circle">🇫🇷</div>
+                <div class="orb-label">French</div>
+                <div class="orb-count">50 questions</div>
+            </a>
+            <a href="{% url 'login' %}" class="lang-orb">
+                <div class="orb-circle">🇬🇧</div>
+                <div class="orb-label">English</div>
+                <div class="orb-count">50 questions</div>
+            </a>
+            <a href="{% url 'login' %}" class="lang-orb">
+                <div class="orb-circle">🇳🇬</div>
+                <div class="orb-label">Yoruba</div>
+                <div class="orb-count">50 questions</div>
+            </a>
+        </div>
+
+        <div class="stats-strip">
+            <div class="stat-cell">
+                <div class="num" data-count="150">0</div>
+                <div class="lbl">Curated questions</div>
+            </div>
+            <div class="stat-cell">
+                <div class="num" data-count="3">0</div>
+                <div class="lbl">Languages</div>
+            </div>
+            <div class="stat-cell">
+                <div class="num" data-count="50">0</div>
+                <div class="lbl">Per exam</div>
+            </div>
+            <div class="stat-cell">
+                <div class="num" data-count="100">0<span style="font-size:0.5em;">%</span></div>
+                <div class="lbl">Free forever</div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feat">
+                <span class="feat-icon">⚡</span>
+                <h3>Instant scoring</h3>
+                <p>Know your result the moment you submit. No waiting, no delays.</p>
+            </div>
+            <div class="feat">
+                <span class="feat-icon">📊</span>
+                <h3>Progress tracking</h3>
+                <p>Watch your average rise over time. See your best score per language.</p>
+            </div>
+            <div class="feat">
+                <span class="feat-icon">🏆</span>
+                <h3>Achievements</h3>
+                <p>Unlock badges as you improve. Stay motivated with streaks and goals.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="landing-footer">
+        Built for students, teachers and schools · Powered by Django
+    </div>
+</div>
+
+<script>
+    // === Typewriter ===
+    const words = ['practice.', 'challenge.', 'confidence.', 'fluency.', 'mastery.'];
+    let wordIdx = 0, charIdx = 0, deleting = false;
+    const tw = document.getElementById('typewriter');
+
+    function typeLoop() {
+        const current = words[wordIdx];
+        if (!deleting) {
+            tw.textContent = current.slice(0, ++charIdx);
+            if (charIdx === current.length) {
+                deleting = true;
+                setTimeout(typeLoop, 1600);
+                return;
+            }
+        } else {
+            tw.textContent = current.slice(0, --charIdx);
+            if (charIdx === 0) {
+                deleting = false;
+                wordIdx = (wordIdx + 1) % words.length;
+            }
+        }
+        setTimeout(typeLoop, deleting ? 55 : 110);
+    }
+    typeLoop();
+
+    // === Count-up stats ===
+    document.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count);
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 50));
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            const suffix = el.querySelector('span') ? '<span style="font-size:0.5em;">%</span>' : '';
+            el.innerHTML = current + suffix;
+        }, 25);
+    });
+
+    // === Parallax orbs ===
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 30;
+        const y = (e.clientY / window.innerHeight - 0.5) * 30;
+        document.querySelectorAll('.orb').forEach((orb, i) => {
+            const factor = (i + 1) * 0.6;
+            orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+        });
+    });
+</script>
+{% endblock %}

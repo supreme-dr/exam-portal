@@ -1,0 +1,598 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+
+<style>
+    /* ===== HERO ===== */
+    .teacher-hero {
+        background: linear-gradient(135deg, #065f46 0%, #059669 50%, #10b981 100%);
+        border-radius: 20px;
+        padding: 32px 36px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 28px;
+        animation: fadeInUp 0.5s ease both;
+    }
+    .teacher-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(circle at 85% 15%, rgba(251,191,36,0.3), transparent 45%),
+            radial-gradient(circle at 15% 85%, rgba(16,185,129,0.4), transparent 45%);
+        pointer-events: none;
+    }
+    .teacher-hero-content {
+        display: flex; justify-content: space-between;
+        align-items: center; gap: 24px; flex-wrap: wrap;
+        position: relative; z-index: 1;
+    }
+    .teacher-hero h1 {
+        font-size: 1.9em; font-weight: 900;
+        letter-spacing: -0.03em; color: white;
+        margin-bottom: 6px;
+    }
+    .teacher-hero p { color: rgba(255,255,255,0.8); font-size: 0.95em; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 11px 20px; border-radius: 11px;
+        font-size: 0.88em; font-weight: 700;
+        cursor: pointer; font-family: inherit;
+        border: none; text-decoration: none;
+        transition: all 0.2s;
+    }
+    .hero-btn.primary {
+        background: linear-gradient(135deg, #fbbf24, #f97316);
+        color: #1f2937;
+        box-shadow: 0 6px 24px rgba(251,191,36,0.4);
+    }
+    .hero-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(251,191,36,0.55); }
+    .hero-btn.ghost {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+    .hero-btn.ghost:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== STAT CARDS ===== */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .teacher-stat {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: fadeInUp 0.5s ease both;
+    }
+    .teacher-stat:nth-child(1) { animation-delay: 0.05s; }
+    .teacher-stat:nth-child(2) { animation-delay: 0.1s; }
+    .teacher-stat:nth-child(3) { animation-delay: 0.15s; }
+    .teacher-stat:nth-child(4) { animation-delay: 0.2s; }
+    .teacher-stat:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+        border-color: #10b981;
+    }
+    .stat-icon-box {
+        width: 42px; height: 42px;
+        border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2em;
+        margin-bottom: 12px;
+    }
+    .stat-icon-box.green { background: #d1fae5; }
+    .stat-icon-box.blue { background: #dbeafe; }
+    .stat-icon-box.amber { background: #fef3c7; }
+    .stat-icon-box.purple { background: #ede9fe; }
+    .teacher-stat .num {
+        font-size: 2em;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+    .teacher-stat .lbl {
+        font-size: 0.82em;
+        color: var(--text-muted);
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .teacher-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 20px;
+        align-items: start;
+    }
+    @media (max-width: 1000px) {
+        .teacher-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ===== QUESTION BANK ===== */
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        animation: fadeInUp 0.5s ease 0.2s both;
+    }
+    .panel-title {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+    }
+    .panel-title h3 {
+        font-size: 1.05em; font-weight: 800;
+        margin: 0; letter-spacing: -0.01em;
+    }
+    .panel-controls {
+        display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .filter-chip {
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1.5px solid var(--border);
+        background: var(--surface);
+        font-size: 0.8em; font-weight: 600;
+        cursor: pointer; font-family: inherit;
+        color: var(--text-muted);
+        transition: all 0.2s;
+    }
+    .filter-chip:hover { border-color: #10b981; color: #10b981; }
+    .filter-chip.active {
+        background: #10b981; color: white;
+        border-color: #10b981;
+        box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+
+    /* ===== QUESTION CARDS ===== */
+    .q-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .q-item {
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: fadeInUp 0.4s ease both;
+        background: var(--surface);
+    }
+    .q-item:hover {
+        border-color: #10b981;
+        transform: translateX(4px);
+        box-shadow: 0 8px 24px rgba(16,185,129,0.1);
+    }
+    .q-item-head {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 10px;
+        gap: 10px; flex-wrap: wrap;
+    }
+    .q-lang-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 12px; border-radius: 7px;
+        font-size: 0.78em; font-weight: 700;
+    }
+    .q-lang-french { background: #dbeafe; color: #1e40af; }
+    .q-lang-english { background: #d1fae5; color: #065f46; }
+    .q-lang-yoruba { background: #fef3c7; color: #92400e; }
+    .q-actions { display: flex; gap: 6px; }
+    .q-action-btn {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        cursor: pointer; font-size: 0.9em;
+        transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none; color: var(--text);
+    }
+    .q-action-btn:hover { border-color: #10b981; color: #10b981; background: #f0fdf4; }
+    .q-action-btn.danger:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+    .q-text {
+        font-weight: 600; font-size: 1em;
+        margin-bottom: 12px; line-height: 1.4;
+    }
+    .q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .q-opt {
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: #fafafa;
+        font-size: 0.85em;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .q-opt.correct {
+        background: #d1fae5;
+        font-weight: 700;
+        color: #065f46;
+    }
+    .q-opt-letter {
+        font-weight: 800; font-size: 0.9em;
+        color: var(--text-muted);
+        min-width: 14px;
+    }
+    .q-opt.correct .q-opt-letter { color: #059669; }
+
+    /* ===== QUICK ADD FORM (SIDEBAR) ===== */
+    .add-form-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        position: sticky; top: 20px;
+        animation: fadeInUp 0.5s ease 0.3s both;
+    }
+    .add-form-panel h3 {
+        font-size: 1.05em; font-weight: 800;
+        margin-bottom: 4px; letter-spacing: -0.01em;
+    }
+    .add-form-panel .sub {
+        font-size: 0.82em; color: var(--text-muted);
+        margin-bottom: 18px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+        display: block;
+        font-size: 0.82em;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--text);
+    }
+    .field input, .field select, .field textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.88em;
+        font-family: inherit;
+        transition: all 0.2s;
+        background: var(--surface);
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+    }
+    .field textarea { resize: vertical; min-height: 60px; }
+
+    .option-row {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 8px;
+    }
+    .option-row .letter {
+        width: 28px; height: 28px;
+        border-radius: 7px;
+        background: #f3f4f6;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.78em;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+    .option-row.is-correct .letter {
+        background: #10b981;
+        color: white;
+    }
+    .option-row input[type="text"] { flex: 1; }
+    .option-row input[type="radio"] {
+        width: 18px; height: 18px;
+        accent-color: #10b981;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 11px;
+        font-size: 0.92em;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 6px 20px rgba(16,185,129,0.3);
+        margin-top: 8px;
+    }
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(16,185,129,0.45);
+    }
+    .submit-btn:active { transform: translateY(0) scale(0.98); }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.85em;
+        margin-bottom: 16px;
+        font-weight: 600;
+        animation: fadeInUp 0.3s ease;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-q {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--text-muted);
+    }
+    .empty-q .icon {
+        font-size: 3em;
+        margin-bottom: 12px;
+        display: block;
+        opacity: 0.5;
+    }
+
+    /* ===== PER-LANGUAGE RINGS ===== */
+    .ring-grid {
+        display: flex; gap: 12px; flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .ring-item {
+        flex: 1; min-width: 90px;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 12px 8px;
+        border-radius: 12px;
+        background: #fafafa;
+    }
+    .ring {
+        width: 58px; height: 58px;
+        position: relative;
+        margin-bottom: 8px;
+    }
+    .ring svg { transform: rotate(-90deg); }
+    .ring .track { stroke: #e5e7eb; }
+    .ring .fill {
+        stroke-linecap: round;
+        stroke-dasharray: 138;
+        stroke-dashoffset: 138;
+        animation: fillRing 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fillRing {
+        to { stroke-dashoffset: calc(138 - (138 * var(--pct) / 100)); }
+    }
+    .ring .num {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.85em;
+        font-variant-numeric: tabular-nums;
+    }
+    .ring-label {
+        font-size: 0.75em;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+</style>
+
+<!-- ===== HERO ===== -->
+<div class="teacher-hero">
+    <div class="teacher-hero-content">
+        <div>
+            <h1>Welcome, {{ request.user.username }} 👋</h1>
+            <p>Manage your question bank and monitor student performance.</p>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'view_scores' %}" class="hero-btn ghost">📊 View All Scores</a>
+            <a href="#quick-add" class="hero-btn primary">➕ Add Question</a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="stat-grid">
+    <div class="teacher-stat">
+        <div class="stat-icon-box green">📚</div>
+        <div class="num" data-count="{{ questions|length }}">0</div>
+        <div class="lbl">Total Questions</div>
+    </div>
+    <div class="teacher-stat">
+        <div class="stat-icon-box blue">🇫🇷</div>
+        <div class="num" data-count="{{ french_count|default:0 }}">0</div>
+        <div class="lbl">French</div>
+    </div>
+    <div class="teacher-stat">
+        <div class="stat-icon-box green">🇬🇧</div>
+        <div class="num" data-count="{{ english_count|default:0 }}">0</div>
+        <div class="lbl">English</div>
+    </div>
+    <div class="teacher-stat">
+        <div class="stat-icon-box amber">🇳🇬</div>
+        <div class="num" data-count="{{ yoruba_count|default:0 }}">0</div>
+        <div class="lbl">Yoruba</div>
+    </div>
+</div>
+
+<!-- ===== MAIN TWO-COLUMN LAYOUT ===== -->
+<div class="teacher-layout">
+    <!-- Question bank -->
+    <div class="panel">
+        <div class="panel-title">
+            <h3>📝 Your Question Bank</h3>
+            <div class="panel-controls">
+                <button class="filter-chip active" data-filter="all">All ({{ questions|length }})</button>
+                <button class="filter-chip" data-filter="French">🇫🇷 ({{ french_count|default:0 }})</button>
+                <button class="filter-chip" data-filter="English">🇬🇧 ({{ english_count|default:0 }})</button>
+                <button class="filter-chip" data-filter="Yoruba">🇳🇬 ({{ yoruba_count|default:0 }})</button>
+            </div>
+        </div>
+
+        <!-- Per-language rings -->
+        <div class="ring-grid">
+            <div class="ring-item">
+                <div class="ring" style="--pct:{{ french_pct|default:0 }}">
+                    <svg width="58" height="58" viewBox="0 0 58 58">
+                        <circle class="track" cx="29" cy="29" r="22" fill="none" stroke-width="5"/>
+                        <circle class="fill" cx="29" cy="29" r="22" fill="none" stroke-width="5" stroke="#3b82f6"/>
+                    </svg>
+                    <div class="num">{{ french_count|default:0 }}</div>
+                </div>
+                <div class="ring-label">French</div>
+            </div>
+            <div class="ring-item">
+                <div class="ring" style="--pct:{{ english_pct|default:0 }}">
+                    <svg width="58" height="58" viewBox="0 0 58 58">
+                        <circle class="track" cx="29" cy="29" r="22" fill="none" stroke-width="5"/>
+                        <circle class="fill" cx="29" cy="29" r="22" fill="none" stroke-width="5" stroke="#10b981"/>
+                    </svg>
+                    <div class="num">{{ english_count|default:0 }}</div>
+                </div>
+                <div class="ring-label">English</div>
+            </div>
+            <div class="ring-item">
+                <div class="ring" style="--pct:{{ yoruba_pct|default:0 }}">
+                    <svg width="58" height="58" viewBox="0 0 58 58">
+                        <circle class="track" cx="29" cy="29" r="22" fill="none" stroke-width="5"/>
+                        <circle class="fill" cx="29" cy="29" r="22" fill="none" stroke-width="5" stroke="#f59e0b"/>
+                    </svg>
+                    <div class="num">{{ yoruba_count|default:0 }}</div>
+                </div>
+                <div class="ring-label">Yoruba</div>
+            </div>
+        </div>
+
+        <div class="q-list" id="qList">
+            {% for q in questions %}
+            <div class="q-item" data-language="{{ q.language }}">
+                <div class="q-item-head">
+                    <span class="q-lang-badge q-lang-{{ q.language|lower }}">{{ q.language }}</span>
+                    <div class="q-actions">
+                        <a href="/admin/exams/question/{{ q.id }}/change/" class="q-action-btn" title="Edit">✏️</a>
+                        <a href="/admin/exams/question/{{ q.id }}/delete/" class="q-action-btn danger" title="Delete">🗑️</a>
+                    </div>
+                </div>
+                <div class="q-text">{{ q.text }}</div>
+                <div class="q-options">
+                    <div class="q-opt {% if q.correct_answer == 'A' %}correct{% endif %}">
+                        <span class="q-opt-letter">A.</span> {{ q.option_a }}
+                    </div>
+                    <div class="q-opt {% if q.correct_answer == 'B' %}correct{% endif %}">
+                        <span class="q-opt-letter">B.</span> {{ q.option_b }}
+                    </div>
+                    <div class="q-opt {% if q.correct_answer == 'C' %}correct{% endif %}">
+                        <span class="q-opt-letter">C.</span> {{ q.option_c }}
+                    </div>
+                    <div class="q-opt {% if q.correct_answer == 'D' %}correct{% endif %}">
+                        <span class="q-opt-letter">D.</span> {{ q.option_d }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-q">
+                <span class="icon">📝</span>
+                <p><strong>No questions yet.</strong></p>
+                <p style="font-size:0.88em;margin-top:4px;">Use the quick-add form to create your first question.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Quick add form -->
+    <div class="add-form-panel" id="quick-add">
+        <h3>➕ Quick Add Question</h3>
+        <p class="sub">Create a new question instantly</p>
+
+        {% if messages %}
+            {% for m in messages %}
+            <div class="alert-success">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'add_question' %}">
+            {% csrf_token %}
+
+            <div class="field">
+                <label>Language</label>
+                <select name="language" required>
+                    <option value="French">🇫🇷 French</option>
+                    <option value="English">🇬🇧 English</option>
+                    <option value="Yoruba">🇳🇬 Yoruba</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Question</label>
+                <textarea name="text" required placeholder="Type the question here..." rows="2"></textarea>
+            </div>
+
+            <div class="field">
+                <label>Options (select the correct one)</label>
+
+                <div class="option-row">
+                    <span class="letter">A</span>
+                    <input type="text" name="option_a" required placeholder="Option A">
+                    <input type="radio" name="correct" value="A" required title="Mark A correct">
+                </div>
+                <div class="option-row">
+                    <span class="letter">B</span>
+                    <input type="text" name="option_b" required placeholder="Option B">
+                    <input type="radio" name="correct" value="B" title="Mark B correct">
+                </div>
+                <div class="option-row">
+                    <span class="letter">C</span>
+                    <input type="text" name="option_c" required placeholder="Option C">
+                    <input type="radio" name="correct" value="C" title="Mark C correct">
+                </div>
+                <div class="option-row">
+                    <span class="letter">D</span>
+                    <input type="text" name="option_d" required placeholder="Option D">
+                    <input type="radio" name="correct" value="D" title="Mark D correct">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Question →</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ===== Count-up stat numbers =====
+    document.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count) || 0;
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 30));
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = current;
+        }, 25);
+    });
+
+    // ===== Filter chips =====
+    const chips = document.querySelectorAll('.filter-chip');
+    const items = document.querySelectorAll('.q-item');
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            chips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            const filter = chip.dataset.filter;
+            items.forEach(item => {
+                item.style.display = (filter === 'all' || item.dataset.language === filter) ? '' : 'none';
+            });
+        });
+    });
+
+    // ===== Highlight correct option row on radio check =====
+    document.querySelectorAll('.option-row input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.option-row').forEach(r => r.classList.remove('is-correct'));
+            if (radio.checked) radio.closest('.option-row').classList.add('is-correct');
+        });
+    });
+</script>
+{% endblock %}

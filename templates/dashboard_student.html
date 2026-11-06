@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<style>
+    /* ===== HERO ===== */
+    .hero {
+        position: relative; overflow: hidden;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+        border-radius: 20px; padding: 36px 40px; color: white;
+        margin-bottom: 28px;
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .hero::before, .hero::after {
+        content: ''; position: absolute; border-radius: 50%;
+        background: rgba(255,255,255,0.1); filter: blur(40px);
+    }
+    .hero::before { width: 300px; height: 300px; top: -80px; right: -60px; animation: float 10s ease-in-out infinite; }
+    .hero::after { width: 200px; height: 200px; bottom: -60px; left: 20%; animation: float 13s ease-in-out infinite reverse; }
+    @keyframes float {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50% { transform: translate(30px, 20px) scale(1.1); }
+    }
+    .hero-content { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
+    .hero h1 { font-size: 1.9em; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .hero p { opacity: 0.9; font-size: 1em; }
+    .hero-quote {
+        margin-top: 16px; font-style: italic; opacity: 0.85; font-size: 0.92em;
+        min-height: 20px; transition: opacity 0.5s;
+    }
+    .goal-ring { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+    .goal-ring svg { transform: rotate(-90deg); }
+    .goal-ring .track { stroke: rgba(255,255,255,0.25); }
+    .goal-ring .fill {
+        stroke: #fbbf24; stroke-linecap: round;
+        stroke-dasharray: 314; stroke-dashoffset: 314;
+        animation: fillRing 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        filter: drop-shadow(0 0 6px rgba(251,191,36,0.6));
+    }
+    @keyframes fillRing { to { stroke-dashoffset: calc(314 - (314 * var(--pct) / 100)); } }
+    .goal-ring .label {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-size: 1.5em; font-weight: 800;
+    }
+    .goal-ring .label small { font-size: 0.32em; font-weight: 600; opacity: 0.8; margin-top: 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* ===== STATS ===== */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+        padding: 22px; position: relative; overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); border-color: var(--primary); }
+    .stat-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4em; margin-bottom: 14px;
+    }
+    .stat-icon.purple { background: #eef2ff; }
+    .stat-icon.green { background: #d1fae5; }
+    .stat-icon.yellow { background: #fef3c7; }
+    .stat-icon.pink { background: #fce7f3; }
+    .stat-label { font-size: 0.82em; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+    .stat-value { font-size: 1.9em; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+    .stat-sub { font-size: 0.78em; color: var(--text-muted); margin-top: 4px; }
+
+    /* ===== LANGUAGE CARDS ===== */
+    .section-title {
+        font-size: 1.15em; font-weight: 700; margin-bottom: 16px;
+        display: flex; align-items: center; gap: 8px;
+        animation: fadeInUp 0.5s ease both;
+    }
+    .lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .lang-card {
+        position: relative; overflow: hidden;
+        background: var(--surface); border: 1.5px solid var(--border);
+        border-radius: 18px; padding: 24px;
+        text-decoration: none; color: var(--text);
+        display: flex; align-items: center; gap: 18px;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .lang-card:nth-child(1) { animation-delay: 0.15s; }
+    .lang-card:nth-child(2) { animation-delay: 0.25s; }
+    .lang-card:nth-child(3) { animation-delay: 0.35s; }
+    .lang-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 18px 40px rgba(79,70,229,0.18);
+    }
+    .lang-card::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(79,70,229,0.05), rgba(168,85,247,0.05));
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .lang-card:hover::before { opacity: 1; }
+    .lang-flag { font-size: 2.8em; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .lang-card:hover .lang-flag { transform: scale(1.2) rotate(-10deg); }
+    .lang-info { flex: 1; position: relative; z-index: 1; }
+    .lang-info .name { font-weight: 700; font-size: 1.05em; }
+    .lang-info .status { font-size: 0.82em; color: var(--text-muted); margin-top: 2px; }
+    .lang-progress { width: 56px; height: 56px; flex-shrink: 0; position: relative; }
+    .lang-progress svg { transform: rotate(-90deg); }
+    .lang-progress .track { stroke: #eef2ff; }
+    .lang-progress .fill {
+        stroke: var(--primary); stroke-linecap: round;
+        stroke-dasharray: 151; stroke-dashoffset: 151;
+        animation: fillLang 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fillLang { to { stroke-dashoffset: calc(151 - (151 * var(--pct) / 100)); } }
+    .lang-progress .pct {
+        position: absolute; inset: 0; display: flex; align-items: center;
+        justify-content: center; font-weight: 700; font-size: 0.8em; color: var(--primary);
+    }
+
+    /* ===== ACHIEVEMENTS ===== */
+    .achievements { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .badge-item {
+        background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px;
+        padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+        font-size: 0.88em; font-weight: 600;
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        transition: all 0.25s;
+    }
+    .badge-item:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .badge-item.unlocked { border-color: #fbbf24; background: #fffbeb; }
+    .badge-item.locked { opacity: 0.45; filter: grayscale(1); }
+    .badge-emoji { font-size: 1.5em; }
+
+    /* ===== ACTIVITY TIMELINE ===== */
+    .timeline { position: relative; padding-left: 30px; margin-top: 8px; }
+    .timeline::before {
+        content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px;
+        width: 2px; background: linear-gradient(180deg, #eef2ff, #c7d2fe);
+        border-radius: 2px;
+    }
+    .tl-item {
+        position: relative; padding: 12px 0 20px;
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .tl-item::before {
+        content: ''; position: absolute; left: -26px; top: 18px;
+        width: 14px; height: 14px; border-radius: 50%;
+        background: white; border: 3px solid var(--primary);
+        box-shadow: 0 0 0 4px #eef2ff;
+    }
+    .tl-item.green::before { border-color: var(--success); box-shadow: 0 0 0 4px #d1fae5; }
+    .tl-item.yellow::before { border-color: var(--warning); box-shadow: 0 0 0 4px #fef3c7; }
+    .tl-item.red::before { border-color: var(--danger); box-shadow: 0 0 0 4px #fee2e2; }
+    .tl-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .tl-title { font-weight: 600; font-size: 0.95em; }
+    .tl-date { font-size: 0.78em; color: var(--text-muted); }
+    .tl-score { font-size: 0.85em; color: var(--text-muted); }
+    .tl-score strong { color: var(--text); }
+
+    .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.92em; }
+    .cta-banner {
+        background: linear-gradient(135deg, #f0f9ff, #eef2ff);
+        border: 1.5px dashed #c7d2fe; border-radius: 16px; padding: 20px 24px;
+        display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        margin-bottom: 28px; animation: fadeInUp 0.6s ease both;
+    }
+    .cta-banner .cta-text strong { color: var(--primary); }
+</style>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+    <div class="hero-content">
+        <div>
+            <h1>Welcome back, {{ request.user.username }} 👋</h1>
+            <p>{% if attempts %}You've completed {{ attempts|length }} exam{{ attempts|length|pluralize }}. Keep the momentum going!{% else %}Ready to test your knowledge? Pick a language below.{% endif %}</p>
+            <div class="hero-quote" id="quote">"Every expert was once a beginner."</div>
+        </div>
+        <div class="goal-ring" style="--pct:{{ daily_pct|default:0 }}">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+                <circle class="track" cx="55" cy="55" r="50" fill="none" stroke-width="6"/>
+                <circle class="fill" cx="55" cy="55" r="50" fill="none" stroke-width="6"/>
+            </svg>
+            <div class="label">
+                {{ attempts_today|default:0 }}<small>today</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STATS ============ -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon purple">📝</div>
+        <div class="stat-label">Exams Taken</div>
+        <div class="stat-value" data-count="{{ attempts|length }}">0</div>
+        <div class="stat-sub">All time</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">🎯</div>
+        <div class="stat-label">Average Score</div>
+        <div class="stat-value" data-count="{{ avg_score|default:0 }}">0</div>
+        <div class="stat-sub">out of 50</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">🏆</div>
+        <div class="stat-label">Best Score</div>
+        <div class="stat-value" data-count="{{ best_score|default:0 }}">0</div>
+        <div class="stat-sub">out of 50</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon pink">🔥</div>
+        <div class="stat-label">Streak</div>
+        <div class="stat-value" data-count="{{ streak|default:0 }}">0</div>
+        <div class="stat-sub">day{{ streak|default:0|pluralize }}</div>
+    </div>
+</div>
+
+<!-- ============ CTA ============ -->
+{% if recommended %}
+<div class="cta-banner">
+    <div class="cta-text">
+        💡 <strong>Recommended next:</strong> Take the <strong>{{ recommended }}</strong> exam to improve your weakest area.
+    </div>
+    <a href="{% url 'take_exam' recommended %}" class="btn">Start Now →</a>
+</div>
+{% endif %}
+
+<!-- ============ LANGUAGES ============ -->
+<div class="section-title">🌍 Choose your language</div>
+<div class="lang-grid">
+    {% for lang in languages %}
+    <a href="{% url 'take_exam' lang.name %}" class="lang-card">
+        <div class="lang-flag">{{ lang.flag }}</div>
+        <div class="lang-info">
+            <div class="name">{{ lang.name }}</div>
+            <div class="status">
+                {% if lang.best is None %}Not attempted yet{% else %}Best: {{ lang.best }}/50{% endif %}
+            </div>
+        </div>
+        <div class="lang-progress" style="--pct:{{ lang.pct }}">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle class="track" cx="28" cy="28" r="24" fill="none" stroke-width="5"/>
+                <circle class="fill" cx="28" cy="28" r="24" fill="none" stroke-width="5"/>
+            </svg>
+            <div class="pct">{{ lang.pct }}%</div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- ============ ACHIEVEMENTS ============ -->
+<div class="section-title">🏅 Achievements</div>
+<div class="achievements">
+    <div class="badge-item {% if attempts|length >= 1 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">🎓</span> First Exam
+    </div>
+    <div class="badge-item {% if attempts|length >= 3 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">📚</span> 3 Exams
+    </div>
+    <div class="badge-item {% if best_score >= 40 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">⭐</span> Score 40+
+    </div>
+    <div class="badge-item {% if best_score >= 48 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">💎</span> Near Perfect
+    </div>
+    <div class="badge-item {% if languages_tried >= 2 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">🌍</span> Multi-Lingual
+    </div>
+    <div class="badge-item {% if streak >= 3 %}unlocked{% else %}locked{% endif %}">
+        <span class="badge-emoji">🔥</span> 3-Day Streak
+    </div>
+</div>
+
+<!-- ============ RECENT ACTIVITY ============ -->
+<div class="card">
+    <h3>📊 Recent Activity</h3>
+    {% if attempts %}
+    <div class="timeline">
+        {% for a in attempts|slice:":10" %}
+        <div class="tl-item {% if a.score >= 40 %}green{% elif a.score >= 25 %}yellow{% else %}red{% endif %}">
+            <div class="tl-header">
+                <div class="tl-title">{{ a.language }} Exam</div>
+                <div class="tl-date">{{ a.submitted_at|date:"M d, H:i" }}</div>
+            </div>
+            <div class="tl-score">
+                Scored <strong>{{ a.score }}/{{ a.total_questions }}</strong>
+                {% if a.score >= 40 %} — Excellent! 🌟
+                {% elif a.score >= 25 %} — Good effort 💪
+                {% else %} — Keep practicing 📖{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        🚀 Your journey starts here. Take your first exam above!
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// ===== Count-up animation =====
+document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count) || 0;
+    let current = 0;
+    const step = Math.max(1, Math.ceil(target / 40));
+    const timer = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(timer); }
+        el.textContent = current;
+    }, 25);
+});
+
+// ===== Rotating motivational quotes =====
+const quotes = [
+    '"Every expert was once a beginner."',
+    '"Practice makes progress."',
+    '"Learning a language opens a new world."',
+    '"Small steps every day lead to big results."',
+    '"Mistakes are proof that you are trying."',
+    '"The secret of getting ahead is getting started."'
+];
+let qi = 0;
+const quoteEl = document.getElementById('quote');
+if (quoteEl) {
+    setInterval(() => {
+        quoteEl.style.opacity = 0;
+        setTimeout(() => {
+            qi = (qi + 1) % quotes.length;
+            quoteEl.textContent = quotes[qi];
+            quoteEl.style.opacity = 1;
+        }, 400);
+    }, 6000);
+}
+</script>
+{% endblock %}

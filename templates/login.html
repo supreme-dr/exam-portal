@@ -1,0 +1,692 @@
+{% extends 'base.html' %}
+{% block title %}Sign In{% endblock %}
+{% block content_public %}
+
+<style>
+    .split-login {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+    @media (max-width: 900px) {
+        .split-login { grid-template-columns: 1fr; }
+        .edu-panel { display: none; }
+    }
+
+    /* ===== LEFT PANEL ===== */
+    .edu-panel {
+        background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 40%, #6d28d9 70%, #7c3aed 100%);
+        background-size: 200% 200%;
+        animation: panelShift 18s ease infinite;
+        color: white; padding: 60px;
+        display: flex; flex-direction: column; justify-content: center;
+        position: relative; overflow: hidden;
+    }
+    @keyframes panelShift {
+        0%,100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    .edu-panel::before, .edu-panel::after {
+        content: ''; position: absolute; border-radius: 50%;
+        background: radial-gradient(circle, rgba(168,85,247,0.4), transparent 70%);
+        filter: blur(60px);
+    }
+    .edu-panel::before { width: 500px; height: 500px; top: -150px; right: -150px; animation: float 14s ease-in-out infinite; }
+    .edu-panel::after { width: 400px; height: 400px; bottom: -120px; left: -100px; animation: float 18s ease-in-out infinite reverse; }
+    @keyframes float {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50% { transform: translate(40px,30px) scale(1.15); }
+    }
+
+    /* Floating language particles */
+    .particle {
+        position: absolute;
+        font-size: 1.6em;
+        opacity: 0.15;
+        animation: particleFloat 20s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+    }
+    @keyframes particleFloat {
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+        10% { opacity: 0.2; }
+        90% { opacity: 0.2; }
+        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    .edu-logo {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 1.3em; font-weight: 800;
+        margin-bottom: 40px; position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease both;
+    }
+    .edu-logo .icon {
+        width: 48px; height: 48px;
+        background: linear-gradient(135deg, #fbbf24, #f97316);
+        border-radius: 13px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3em;
+        box-shadow: 0 8px 24px rgba(251,191,36,0.4);
+        animation: iconBob 3s ease-in-out infinite;
+    }
+    @keyframes iconBob {
+        0%,100% { transform: translateY(0) rotate(0); }
+        50% { transform: translateY(-4px) rotate(-3deg); }
+    }
+
+    .edu-headline {
+        font-size: 2.6em; font-weight: 900;
+        line-height: 1.1; letter-spacing: -0.04em;
+        margin-bottom: 14px; position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease 0.1s both;
+    }
+    .edu-headline .highlight {
+        background: linear-gradient(135deg, #fbbf24, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .edu-sub {
+        font-size: 1.02em; color: rgba(255,255,255,0.8);
+        margin-bottom: 16px; position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease 0.2s both;
+    }
+
+    /* Live typing subtitle */
+    .live-type {
+        font-size: 0.95em;
+        color: #fbbf24;
+        font-weight: 700;
+        margin-bottom: 32px;
+        position: relative; z-index: 2;
+        min-height: 1.4em;
+        animation: fadeInUp 0.6s ease 0.25s both;
+    }
+    .live-type .cursor {
+        display: inline-block;
+        width: 2px; height: 1em;
+        background: #fbbf24;
+        margin-left: 2px;
+        vertical-align: text-bottom;
+        animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Online badge */
+    .online-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(16,185,129,0.15);
+        border: 1px solid rgba(16,185,129,0.35);
+        color: #6ee7b7;
+        padding: 8px 16px; border-radius: 999px;
+        font-size: 0.8em; font-weight: 700;
+        margin-bottom: 28px;
+        position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease 0.3s both;
+    }
+    .online-dot {
+        width: 8px; height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: livePulse 1.6s ease infinite;
+    }
+    @keyframes livePulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+        50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    }
+
+    /* Language preview */
+    .lang-preview {
+        position: relative; z-index: 2;
+        min-height: 130px;
+        margin-bottom: 24px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 20px;
+        padding: 24px;
+        display: flex; align-items: center; gap: 20px;
+        animation: fadeInUp 0.6s ease 0.35s both;
+        overflow: hidden;
+    }
+    .lang-preview .big-flag {
+        font-size: 3.5em;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .lang-preview .info { flex: 1; }
+    .lang-preview .greeting {
+        font-size: 1.5em; font-weight: 800;
+        letter-spacing: -0.02em;
+        transition: opacity 0.3s;
+    }
+    .lang-preview .meaning {
+        font-size: 0.85em; opacity: 0.7;
+        margin-top: 2px;
+    }
+    .lang-preview .language-name {
+        font-size: 0.72em; text-transform: uppercase;
+        letter-spacing: 0.1em; opacity: 0.6;
+        margin-top: 8px; font-weight: 700;
+    }
+
+    .lang-tiles {
+        display: flex; gap: 10px; flex-wrap: wrap;
+        margin-bottom: 28px; position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease 0.4s both;
+    }
+    .lang-tile {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px; padding: 12px 16px;
+        display: flex; align-items: center; gap: 8px;
+        font-weight: 600; font-size: 0.85em;
+        cursor: pointer; transition: all 0.25s;
+        color: white;
+    }
+    .lang-tile:hover, .lang-tile.active {
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-2px);
+        border-color: rgba(255,255,255,0.4);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .lang-tile.active { border-color: #fbbf24; }
+    .lang-tile .flag { font-size: 1.3em; }
+
+    .tip-card {
+        background: rgba(251,191,36,0.12);
+        border: 1px solid rgba(251,191,36,0.3);
+        border-radius: 16px; padding: 18px 22px;
+        position: relative; z-index: 2;
+        animation: fadeInUp 0.6s ease 0.5s both;
+    }
+    .tip-label {
+        font-size: 0.72em; text-transform: uppercase;
+        letter-spacing: 0.1em; opacity: 0.9;
+        font-weight: 700; margin-bottom: 6px;
+        color: #fbbf24;
+    }
+    .tip-text {
+        font-size: 0.92em; line-height: 1.5;
+        transition: opacity 0.4s; min-height: 42px;
+    }
+
+    /* ===== RIGHT SIDE ===== */
+    .login-form-panel {
+        display: flex; align-items: center; justify-content: center;
+        padding: 40px; background: var(--bg);
+        position: relative; z-index: 1;
+    }
+    .login-form-box {
+        width: 100%; max-width: 440px;
+    }
+    .login-form-box h2 {
+        font-size: 2em; font-weight: 900;
+        letter-spacing: -0.03em; margin-bottom: 6px;
+    }
+    .login-form-box .sub {
+        color: var(--text-muted); margin-bottom: 24px;
+        font-size: 0.95em;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+        display: flex; gap: 4px; margin-bottom: 24px;
+        background: #f3f4f6; padding: 4px;
+        border-radius: 12px;
+        position: relative;
+    }
+    .auth-tab {
+        flex: 1; padding: 11px;
+        background: none; border: none;
+        border-radius: 9px;
+        font-size: 0.9em; font-weight: 700;
+        cursor: pointer; font-family: inherit;
+        color: var(--text-muted);
+        transition: all 0.25s;
+        position: relative; z-index: 1;
+    }
+    .auth-tab.active {
+        background: white; color: var(--primary);
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Inputs */
+    .input-group { position: relative; margin-bottom: 16px; }
+    .input-group label {
+        display: block; font-size: 0.85em;
+        font-weight: 600; margin-bottom: 8px;
+    }
+    .input-group input {
+        width: 100%; padding: 13px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 11px; font-size: 0.95em;
+        font-family: inherit; transition: all 0.2s;
+        background: var(--surface);
+    }
+    .input-group input:focus {
+        outline: none; border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
+    }
+    .password-toggle {
+        position: absolute; right: 14px; top: 40px;
+        background: none; border: none;
+        cursor: pointer; font-size: 1.1em;
+        opacity: 0.5; transition: opacity 0.2s;
+    }
+    .password-toggle:hover { opacity: 1; }
+
+    /* Password strength */
+    .pw-strength {
+        margin-top: 8px; display: none;
+    }
+    .pw-strength.visible { display: block; }
+    .pw-bar {
+        height: 4px; background: #e5e7eb;
+        border-radius: 999px; overflow: hidden;
+        margin-bottom: 4px;
+    }
+    .pw-fill {
+        height: 100%; width: 0%;
+        transition: all 0.3s; border-radius: 999px;
+    }
+    .pw-fill.weak { width: 33%; background: #ef4444; }
+    .pw-fill.medium { width: 66%; background: #f59e0b; }
+    .pw-fill.strong { width: 100%; background: #10b981; }
+    .pw-label { font-size: 0.72em; font-weight: 600; }
+
+    /* Student card (single, full width) */
+    .role-selector {
+        display: grid;
+        grid-template-columns: 1fr;   /* ← single column, no gap */
+        gap: 10px; margin-bottom: 20px;
+    }
+    .role-option {
+        border: 1.5px solid var(--border);
+        border-radius: 11px; padding: 16px;
+        cursor: pointer; text-align: center;
+        transition: all 0.2s;
+        background: var(--surface);
+    }
+    .role-option.selected {
+        border-color: var(--primary);
+        background: #eef2ff;
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    .role-option input { display: none; }
+    .role-option .emoji { font-size: 1.8em; display: block; margin-bottom: 4px; }
+    .role-option .role-name { font-weight: 700; font-size: 0.9em; }
+    .role-option .role-desc { font-size: 0.75em; color: var(--text-muted); margin-top: 2px; }
+
+    /* Submit button */
+    .login-btn {
+        width: 100%; padding: 15px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white; border: none;
+        border-radius: 11px;
+        font-size: 1em; font-weight: 700;
+        cursor: pointer; font-family: inherit;
+        transition: all 0.25s; margin-top: 4px;
+        box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+    }
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(79,70,229,0.4);
+    }
+    .login-btn:active { transform: translateY(0) scale(0.98); }
+    .login-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    /* Alerts */
+    .alert {
+        padding: 12px 16px; border-radius: 10px;
+        font-size: 0.88em; margin-bottom: 16px;
+        animation: scaleIn 0.3s ease;
+    }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-success { background: #d1fae5; color: #065f46; }
+
+    .password-hint {
+        font-size: 0.75em; color: var(--text-muted);
+        margin-top: 6px;
+    }
+
+    /* Pane transitions */
+    .form-pane { display: none; }
+    .form-pane.active {
+        display: block;
+        animation: paneIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes paneIn {
+        from { opacity: 0; transform: translateX(12px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+</style>
+
+<div class="split-login">
+    <!-- ========== LEFT: Interactive educational panel ========== -->
+    <div class="edu-panel">
+        <!-- Floating language particles -->
+        <div class="particle" style="left: 10%; animation-delay: 0s;">🇫🇷</div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;">🇬🇧</div>
+        <div class="particle" style="left: 55%; animation-delay: 8s;">🇳🇬</div>
+        <div class="particle" style="left: 75%; animation-delay: 12s;">A</div>
+        <div class="particle" style="left: 90%; animation-delay: 16s;">B</div>
+
+        <div class="edu-logo">
+            <div class="icon">🎓</div>
+            <span>Exam Portal</span>
+        </div>
+
+        <div class="edu-headline">
+            Learn.<br>Test.<br><span class="highlight">Grow.</span>
+        </div>
+        <div class="edu-sub">
+            Master three languages with 50-question exams designed for real fluency.
+        </div>
+
+        <div class="live-type">
+            <span id="typeText"></span><span class="cursor"></span>
+        </div>
+
+        <div class="online-badge">
+            <span class="online-dot"></span>
+            <span id="onlineCount">128 students online</span>
+        </div>
+
+        <div class="lang-preview">
+            <div class="big-flag" id="bigFlag">🇫🇷</div>
+            <div class="info">
+                <div class="greeting" id="greeting">Bonjour !</div>
+                <div class="meaning" id="meaning">Hello!</div>
+                <div class="language-name" id="langName">French</div>
+            </div>
+        </div>
+
+        <div class="lang-tiles">
+            <div class="lang-tile active" data-lang="French">
+                <span class="flag">🇫🇷</span> French
+            </div>
+            <div class="lang-tile" data-lang="English">
+                <span class="flag">🇬🇧</span> English
+            </div>
+            <div class="lang-tile" data-lang="Yoruba">
+                <span class="flag">🇳🇬</span> Yoruba
+            </div>
+        </div>
+
+        <div class="tip-card">
+            <div class="tip-label">💡 Did you know?</div>
+            <div class="tip-text" id="tipText">French is spoken by over 300 million people across 5 continents.</div>
+        </div>
+    </div>
+
+    <!-- ========== RIGHT: Auth form ========== -->
+    <div class="login-form-panel">
+        <div class="login-form-box">
+            <h2 id="formTitle">Welcome back</h2>
+            <p class="sub" id="formSub">Sign in to continue your journey</p>
+
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-pane="login">Sign in</button>
+                <button type="button" class="auth-tab" data-pane="register">Create account</button>
+            </div>
+
+            {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+
+            <!-- ===== LOGIN PANE ===== -->
+            <div class="form-pane active" id="pane-login">
+                <form method="POST" action="{% url 'login' %}" id="loginForm">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label for="login_username">Username</label>
+                        <input type="text" id="login_username" name="username" required
+                               placeholder="Enter your username" autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="login_password">Password</label>
+                        <input type="password" id="login_password" name="password" required
+                               placeholder="Enter your password" autocomplete="current-password">
+                        <button type="button" class="password-toggle" data-target="login_password">👁</button>
+                    </div>
+                    <button type="submit" class="login-btn" id="loginSubmit">Sign in →</button>
+                </form>
+            </div>
+
+            <!-- ===== REGISTER PANE ===== -->
+            <div class="form-pane" id="pane-register">
+                <form method="POST" action="{% url 'register' %}" id="registerForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" value="student">
+
+                    <div class="role-selector">
+                        <div class="role-option selected">
+                            <span class="emoji">🎓</span>
+                            <div class="role-name">Student Account</div>
+                            <div class="role-desc">Take exams and track your progress</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg_username">Username</label>
+                        <input type="text" id="reg_username" name="username" required
+                               placeholder="Choose a username" autocomplete="username">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg_password">Password</label>
+                        <input type="password" id="reg_password" name="password" required
+                               placeholder="At least 6 characters" autocomplete="new-password">
+                        <button type="button" class="password-toggle" data-target="reg_password">👁</button>
+                        <div class="pw-strength" id="pwStrength">
+                            <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+                            <div class="pw-label" id="pwLabel"></div>
+                        </div>
+                        <div class="password-hint">Mix letters, numbers and symbols for a strong password.</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="reg_confirm">Confirm password</label>
+                        <input type="password" id="reg_confirm" name="confirm_password" required
+                               placeholder="Re-enter your password" autocomplete="new-password">
+                        <div class="password-hint" id="matchHint" style="display:none;"></div>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="registerSubmit">Create account →</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== Tab switching =====
+    const tabs = document.querySelectorAll('.auth-tab');
+    const panes = document.querySelectorAll('.form-pane');
+    const title = document.getElementById('formTitle');
+    const sub = document.getElementById('formSub');
+
+    function switchPane(name) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.pane === name));
+        panes.forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
+        title.textContent = name === 'login' ? 'Welcome back' : 'Create account';
+        sub.textContent = name === 'login' ? 'Sign in to continue your journey' : 'Join the exam portal in 30 seconds';
+    }
+    tabs.forEach(t => t.addEventListener('click', () => switchPane(t.dataset.pane)));
+
+    // ===== Live typing =====
+    const typePhrases = [
+        'Master French in weeks...',
+        'Learn English with confidence...',
+        'Discover Yoruba culture...',
+        'Practice, learn, grow...',
+        'Fifty questions per language...'
+    ];
+    let tpIdx = 0, tpChar = 0, tpDeleting = false;
+    const typeEl = document.getElementById('typeText');
+
+    function typeLoop() {
+        const phrase = typePhrases[tpIdx];
+        if (!tpDeleting) {
+            typeEl.textContent = phrase.slice(0, ++tpChar);
+            if (tpChar === phrase.length) {
+                tpDeleting = true;
+                setTimeout(typeLoop, 1800);
+                return;
+            }
+        } else {
+            typeEl.textContent = phrase.slice(0, --tpChar);
+            if (tpChar === 0) {
+                tpDeleting = false;
+                tpIdx = (tpIdx + 1) % typePhrases.length;
+            }
+        }
+        setTimeout(typeLoop, tpDeleting ? 40 : 80);
+    }
+    typeLoop();
+
+    // ===== Online count ticking =====
+    let onlineCount = 128;
+    const onlineEl = document.getElementById('onlineCount');
+    setInterval(() => {
+        onlineCount += Math.floor(Math.random() * 5) - 2;
+        if (onlineCount < 100) onlineCount = 100;
+        onlineEl.textContent = onlineCount + ' students online';
+    }, 3000);
+
+    // ===== Language preview =====
+    const langData = {
+        French: { flag: '🇫🇷', greeting: 'Bonjour !', meaning: 'Hello!', name: 'French' },
+        English: { flag: '🇬🇧', greeting: 'Hello!', meaning: 'A greeting', name: 'English' },
+        Yoruba: { flag: '🇳🇬', greeting: 'Báwo ni!', meaning: 'How are you?', name: 'Yoruba' }
+    };
+    const bigFlag = document.getElementById('bigFlag');
+    const greetingEl = document.getElementById('greeting');
+    const meaningEl = document.getElementById('meaning');
+    const langNameEl = document.getElementById('langName');
+
+    document.querySelectorAll('.lang-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+            document.querySelectorAll('.lang-tile').forEach(t => t.classList.remove('active'));
+            tile.classList.add('active');
+            const data = langData[tile.dataset.lang];
+            bigFlag.style.transform = 'scale(0.5) rotate(-20deg)';
+            greetingEl.style.opacity = 0;
+            meaningEl.style.opacity = 0;
+            langNameEl.style.opacity = 0;
+            setTimeout(() => {
+                bigFlag.textContent = data.flag;
+                greetingEl.textContent = data.greeting;
+                meaningEl.textContent = data.meaning;
+                langNameEl.textContent = data.name;
+                bigFlag.style.transform = 'scale(1) rotate(0)';
+                greetingEl.style.opacity = 1;
+                meaningEl.style.opacity = 1;
+                langNameEl.style.opacity = 1;
+            }, 200);
+        });
+    });
+
+    // ===== Password toggle =====
+    document.querySelectorAll('.password-toggle').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = document.getElementById(this.dataset.target);
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                this.textContent = '👁';
+            }
+        });
+    });
+
+    // ===== Password strength =====
+    const regPassword = document.getElementById('reg_password');
+    const pwStrength = document.getElementById('pwStrength');
+    const pwFill = document.getElementById('pwFill');
+    const pwLabel = document.getElementById('pwLabel');
+
+    if (regPassword) {
+        regPassword.addEventListener('input', () => {
+            const val = regPassword.value;
+            if (val.length === 0) { pwStrength.classList.remove('visible'); return; }
+            pwStrength.classList.add('visible');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            pwFill.className = 'pw-fill';
+            if (score <= 1) { pwFill.classList.add('weak'); pwLabel.textContent = 'Weak password'; pwLabel.style.color = '#ef4444'; }
+            else if (score <= 3) { pwFill.classList.add('medium'); pwLabel.textContent = 'Medium strength'; pwLabel.style.color = '#f59e0b'; }
+            else { pwFill.classList.add('strong'); pwLabel.textContent = 'Strong password ✓'; pwLabel.style.color = '#10b981'; }
+        });
+    }
+
+    // ===== Password match hint =====
+    const regConfirm = document.getElementById('reg_confirm');
+    const matchHint = document.getElementById('matchHint');
+    if (regConfirm) {
+        regConfirm.addEventListener('input', () => {
+            if (!regConfirm.value) { matchHint.style.display = 'none'; return; }
+            matchHint.style.display = 'block';
+            if (regPassword.value === regConfirm.value) {
+                matchHint.textContent = '✓ Passwords match';
+                matchHint.style.color = '#10b981';
+            } else {
+                matchHint.textContent = '✗ Passwords do not match';
+                matchHint.style.color = '#ef4444';
+            }
+        });
+    }
+
+    // ===== Confirm before submit =====
+    document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+        if (regPassword.value !== regConfirm.value) {
+            e.preventDefault();
+            alert('Passwords do not match.');
+        }
+    });
+
+    // ===== Loading states =====
+    document.getElementById('loginForm')?.addEventListener('submit', function() {
+        const btn = document.getElementById('loginSubmit');
+        btn.textContent = 'Signing in...';
+        btn.disabled = true;
+    });
+    document.getElementById('registerForm')?.addEventListener('submit', function() {
+        const btn = document.getElementById('registerSubmit');
+        btn.textContent = 'Creating account...';
+        btn.disabled = true;
+    });
+
+    // ===== Rotating tips =====
+    const tips = [
+        "French is spoken by over 300 million people across 5 continents.",
+        "English has borrowed words from over 350 languages worldwide.",
+        "Yoruba is a tonal language — the same word can mean different things based on tone.",
+        "French is the official language of 29 countries.",
+        "Yoruba is spoken by over 45 million people, mainly in Nigeria and Benin.",
+        "English is the most widely learned second language in the world.",
+        "Learning a new language improves memory and problem-solving skills.",
+        "The French word 'bonjour' literally means 'good day'.",
+        "Yoruba has three tones: high, mid, and low.",
+        "Over 1.5 billion people speak English worldwide."
+    ];
+    let ti = 0;
+    const tipEl = document.getElementById('tipText');
+    if (tipEl) {
+        setInterval(() => {
+            tipEl.style.opacity = 0;
+            setTimeout(() => {
+                ti = (ti + 1) % tips.length;
+                tipEl.textContent = tips[ti];
+                tipEl.style.opacity = 1;
+            }, 350);
+        }, 4500);
+    }
+</script>
+{% endblock %}

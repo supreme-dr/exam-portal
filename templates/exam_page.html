@@ -1,0 +1,615 @@
+{% extends 'base.html' %}
+{% block title %}{{ language }} Exam{% endblock %}
+{% block content %}
+
+<style>
+    /* ===== TOOLBAR ===== */
+    .exam-toolbar {
+        position: sticky; top: 12px; z-index: 100;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex; align-items: center; gap: 16px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        flex-wrap: wrap;
+    }
+    @media (max-width: 768px) {
+        .exam-toolbar { padding: 12px; gap: 10px; }
+    }
+
+    .timer-wrap { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
+    .timer-wrap svg { transform: rotate(-90deg); }
+    .timer-wrap .track { stroke: #eef2ff; }
+    .timer-wrap .fill {
+        stroke: #4f46e5; stroke-linecap: round;
+        stroke-dasharray: 165; stroke-dashoffset: 0;
+        transition: stroke 0.3s, stroke-dashoffset 1s linear;
+    }
+    .timer-wrap.warning .fill { stroke: #f59e0b; }
+    .timer-wrap.danger .fill { stroke: #ef4444; }
+    .timer-text {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.82em;
+        font-variant-numeric: tabular-nums;
+        color: var(--primary);
+    }
+    .timer-wrap.warning .timer-text { color: #f59e0b; }
+    .timer-wrap.danger .timer-text { color: #ef4444; animation: pulse 1s infinite; }
+    @keyframes pulse {
+        0%,100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .progress-block { flex: 1; min-width: 180px; }
+    .progress-top {
+        display: flex; justify-content: space-between;
+        font-size: 0.78em; font-weight: 600;
+        color: var(--text-muted); margin-bottom: 6px;
+    }
+    .progress-top strong { color: var(--text); }
+    .progress-track {
+        height: 8px; background: #eef2ff;
+        border-radius: 999px; overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%; width: 0%;
+        background: linear-gradient(90deg, #4f46e5, #a855f7);
+        border-radius: 999px;
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+    .progress-fill::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 1.8s infinite;
+    }
+    @keyframes shimmer {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(100%); }
+    }
+
+    .toolbar-btn {
+        background: #eef2ff; color: var(--primary);
+        border: none; border-radius: 10px;
+        padding: 10px 16px; font-weight: 700;
+        font-size: 0.85em; cursor: pointer;
+        font-family: inherit; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .toolbar-btn:hover { background: #e0e7ff; transform: translateY(-1px); }
+
+    /* ===== MAIN LAYOUT ===== */
+    .exam-layout {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 24px;
+        align-items: start;
+    }
+    @media (max-width: 1000px) {
+        .exam-layout { grid-template-columns: 1fr; }
+        .navigator { display: none; }
+    }
+
+    /* ===== QUESTION CARD ===== */
+    .question-stage { min-height: 400px; }
+
+    .question-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 36px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .question-card.back { animation: slideBack 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes slideBack {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .q-meta {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 20px;
+        flex-wrap: wrap; gap: 10px;
+    }
+    .q-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #eef2ff; color: var(--primary);
+        font-weight: 700; font-size: 0.78em;
+        padding: 6px 14px; border-radius: 8px;
+        letter-spacing: 0.03em;
+    }
+    .q-points {
+        font-size: 0.78em; color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .question-text {
+        font-size: 1.4em; font-weight: 700;
+        line-height: 1.4; margin-bottom: 28px;
+        letter-spacing: -0.01em;
+    }
+
+    .answer-option {
+        display: flex; align-items: center; gap: 14px;
+        padding: 18px 22px;
+        border: 2px solid var(--border);
+        border-radius: 14px; cursor: pointer;
+        margin-bottom: 12px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        background: var(--surface);
+    }
+    .answer-option:hover {
+        border-color: var(--primary);
+        background: #fafbff;
+        transform: translateX(4px);
+    }
+    .answer-option input[type="radio"] {
+        display: none;
+    }
+    .answer-letter {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: #f3f4f6; color: var(--text-muted);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.95em;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+    .answer-text { flex: 1; font-weight: 500; font-size: 1.02em; }
+    .answer-check {
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75em; color: white;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+    .answer-option:has(input:checked) {
+        border-color: var(--primary);
+        background: #eef2ff;
+        box-shadow: 0 4px 16px rgba(79,70,229,0.15);
+    }
+    .answer-option:has(input:checked) .answer-letter {
+        background: var(--primary);
+        color: white;
+    }
+    .answer-option:has(input:checked) .answer-check {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    /* ===== NAVIGATION BUTTONS ===== */
+    .nav-buttons {
+        display: flex; gap: 12px; margin-top: 28px;
+        justify-content: space-between;
+    }
+    .nav-btn {
+        padding: 14px 28px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-weight: 700; font-size: 0.95em;
+        cursor: pointer; font-family: inherit;
+        transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .nav-btn:hover:not(:disabled) {
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .nav-btn.primary {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white; border: none;
+        box-shadow: 0 6px 20px rgba(79,70,229,0.3);
+    }
+    .nav-btn.primary:hover:not(:disabled) {
+        color: white;
+        box-shadow: 0 10px 30px rgba(79,70,229,0.5);
+    }
+    .nav-btn.submit {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none; color: white;
+        box-shadow: 0 6px 20px rgba(16,185,129,0.3);
+    }
+
+    /* ===== NAVIGATOR SIDEBAR ===== */
+    .navigator {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        position: sticky; top: 100px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .nav-title {
+        font-size: 0.78em; font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+    }
+    .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .nav-cell {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        border: 1.5px solid var(--border);
+        background: var(--surface);
+        font-weight: 700; font-size: 0.82em;
+        color: var(--text-muted);
+        cursor: pointer; font-family: inherit;
+        transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0;
+    }
+    .nav-cell:hover { border-color: var(--primary); color: var(--primary); transform: scale(1.08); }
+    .nav-cell.answered {
+        background: #d1fae5; color: #065f46;
+        border-color: #6ee7b7;
+    }
+    .nav-cell.current {
+        background: var(--primary); color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+        transform: scale(1.1);
+    }
+
+    .nav-legend {
+        display: flex; flex-direction: column; gap: 8px;
+        font-size: 0.78em; color: var(--text-muted);
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+    }
+    .legend-row { display: flex; align-items: center; gap: 8px; }
+    .legend-dot {
+        width: 14px; height: 14px; border-radius: 4px;
+        flex-shrink: 0;
+    }
+    .legend-dot.current { background: var(--primary); }
+    .legend-dot.answered { background: #d1fae5; border: 1px solid #6ee7b7; }
+    .legend-dot.unanswered { background: white; border: 1px solid var(--border); }
+
+    /* ===== SUBMIT MODAL ===== */
+    .modal-overlay {
+        display: none;
+        position: fixed; inset: 0; z-index: 1000;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        align-items: center; justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box {
+        background: white; border-radius: 20px;
+        max-width: 460px; width: 100%;
+        padding: 32px; text-align: center;
+        animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .modal-icon { font-size: 3em; margin-bottom: 12px; }
+    .modal-box h3 { font-size: 1.4em; font-weight: 800; margin-bottom: 8px; }
+    .modal-box p { color: var(--text-muted); margin-bottom: 24px; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions button {
+        flex: 1; padding: 13px;
+        border-radius: 11px; font-weight: 700;
+        font-size: 0.92em; cursor: pointer;
+        font-family: inherit; transition: all 0.2s;
+    }
+    .modal-cancel {
+        background: #f3f4f6; border: none; color: var(--text);
+    }
+    .modal-cancel:hover { background: #e5e7eb; }
+    .modal-confirm {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none; color: white;
+        box-shadow: 0 6px 20px rgba(16,185,129,0.3);
+    }
+    .modal-confirm:hover { transform: translateY(-2px); }
+</style>
+
+<!-- ===== STICKY TOOLBAR ===== -->
+<div class="exam-toolbar">
+    <div class="timer-wrap" id="timerWrap">
+        <svg width="62" height="62" viewBox="0 0 62 62">
+            <circle class="track" cx="31" cy="31" r="26" fill="none" stroke-width="5"/>
+            <circle class="fill" id="timerCircle" cx="31" cy="31" r="26" fill="none" stroke-width="5"/>
+        </svg>
+        <div class="timer-text" id="timerText">45:00</div>
+    </div>
+
+    <div class="progress-block">
+        <div class="progress-top">
+            <span>Progress</span>
+            <span><strong id="answeredCount">0</strong> / {{ questions|length }} answered</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <button class="toolbar-btn" onclick="submitExam()">
+        Submit ✓
+    </button>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="exam-layout">
+    <!-- Question stage -->
+    <div class="question-stage" id="questionStage">
+        {% for q in questions %}
+        <div class="question-card" data-qid="{{ q.id }}" data-index="{{ forloop.counter0 }}" style="{% if not forloop.first %}display:none;{% endif %}">
+            <div class="q-meta">
+                <span class="q-badge">QUESTION {{ forloop.counter }} OF {{ questions|length }}</span>
+                <span class="q-points">1 point</span>
+            </div>
+            <div class="question-text">{{ q.text }}</div>
+
+            <label class="answer-option">
+                <input type="radio" name="q_{{ q.id }}" value="A">
+                <div class="answer-letter">A</div>
+                <div class="answer-text">{{ q.option_a }}</div>
+                <div class="answer-check">✓</div>
+            </label>
+            <label class="answer-option">
+                <input type="radio" name="q_{{ q.id }}" value="B">
+                <div class="answer-letter">B</div>
+                <div class="answer-text">{{ q.option_b }}</div>
+                <div class="answer-check">✓</div>
+            </label>
+            <label class="answer-option">
+                <input type="radio" name="q_{{ q.id }}" value="C">
+                <div class="answer-letter">C</div>
+                <div class="answer-text">{{ q.option_c }}</div>
+                <div class="answer-check">✓</div>
+            </label>
+            <label class="answer-option">
+                <input type="radio" name="q_{{ q.id }}" value="D">
+                <div class="answer-letter">D</div>
+                <div class="answer-text">{{ q.option_d }}</div>
+                <div class="answer-check">✓</div>
+            </label>
+
+            <div class="nav-buttons">
+                <button type="button" class="nav-btn" onclick="goPrev()" id="prevBtn">← Previous</button>
+                {% if forloop.last %}
+                    <button type="button" class="nav-btn submit" onclick="submitExam()">Submit Exam ✓</button>
+                {% else %}
+                    <button type="button" class="nav-btn primary" onclick="goNext()">Next →</button>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="card"><div class="empty-state">No questions available for {{ language }}.</div></div>
+        {% endfor %}
+    </div>
+
+    <!-- Navigator sidebar -->
+    {% if questions %}
+    <div class="navigator">
+        <div class="nav-title">Question Navigator</div>
+        <div class="nav-grid" id="navGrid">
+            {% for q in questions %}
+            <button type="button" class="nav-cell {% if forloop.first %}current{% endif %}" data-index="{{ forloop.counter0 }}">{{ forloop.counter }}</button>
+            {% endfor %}
+        </div>
+        <div class="nav-legend">
+            <div class="legend-row"><span class="legend-dot current"></span> Current question</div>
+            <div class="legend-row"><span class="legend-dot answered"></span> Answered</div>
+            <div class="legend-row"><span class="legend-dot unanswered"></span> Unanswered</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ===== FORM (hidden, used for submission) ===== -->
+<form method="POST" id="examForm" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="answers" id="answersField">
+</form>
+
+<!-- ===== SUBMIT MODAL ===== -->
+<div class="modal-overlay" id="submitModal">
+    <div class="modal-box">
+        <div class="modal-icon">📤</div>
+        <h3>Submit your exam?</h3>
+        <p id="modalMsg">You've answered 0 of {{ questions|length }} questions.</p>
+        <div class="modal-actions">
+            <button type="button" class="modal-cancel" onclick="closeModal()">Keep working</button>
+            <button type="button" class="modal-confirm" onclick="confirmSubmit()">Submit now</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const total = {{ questions|length }};
+    if (total === 0) return;
+
+    let currentIndex = 0;
+    const cards = document.querySelectorAll('.question-card');
+    const navCells = document.querySelectorAll('.nav-cell');
+    const progressFill = document.getElementById('progressFill');
+    const answeredCount = document.getElementById('answeredCount');
+
+    // === Answer tracking ===
+    function getAnswers() {
+        const answers = {};
+        cards.forEach(card => {
+            const qid = card.dataset.qid;
+            const checked = card.querySelector('input[type="radio"]:checked');
+            if (checked) answers['q_' + qid] = checked.value;
+        });
+        return answers;
+    }
+
+    function updateProgress() {
+        const answers = getAnswers();
+        const count = Object.keys(answers).length;
+        progressFill.style.width = (count / total * 100) + '%';
+        answeredCount.textContent = count;
+
+        // Update nav cells
+        navCells.forEach((cell, i) => {
+            const card = cards[i];
+            const qid = card.dataset.qid;
+            if (answers['q_' + qid]) cell.classList.add('answered');
+            else cell.classList.remove('answered');
+        });
+    }
+
+    // === Navigation ===
+    function showQuestion(index, direction = 'next') {
+        if (index < 0 || index >= total) return;
+        cards[currentIndex].style.display = 'none';
+        currentIndex = index;
+        const card = cards[currentIndex];
+        card.style.display = '';
+        card.classList.remove('back');
+        if (direction === 'prev') {
+            void card.offsetWidth;
+            card.classList.add('back');
+        } else {
+            void card.offsetWidth;
+            card.style.animation = 'slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        }
+
+        // Update prev button state
+        const prevBtn = card.querySelector('#prevBtn');
+        if (prevBtn) prevBtn.disabled = currentIndex === 0;
+
+        // Update nav cells
+        navCells.forEach((c, i) => c.classList.toggle('current', i === currentIndex));
+
+        // Scroll to top of card
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    window.goNext = () => { if (currentIndex < total - 1) showQuestion(currentIndex + 1, 'next'); };
+    window.goPrev = () => { if (currentIndex > 0) showQuestion(currentIndex - 1, 'prev'); };
+
+    // === Answer click handling ===
+    cards.forEach((card, index) => {
+        card.querySelectorAll('input[type="radio"]').forEach(input => {
+            input.addEventListener('change', () => {
+                updateProgress();
+                // Auto-advance after short delay
+                setTimeout(() => {
+                    if (currentIndex === index && index < total - 1) goNext();
+                }, 400);
+            });
+        });
+    });
+
+    // === Nav cell clicks ===
+    navCells.forEach((cell, i) => {
+        cell.addEventListener('click', () => showQuestion(i, i > currentIndex ? 'next' : 'prev'));
+    });
+
+    // === Timer ===
+    let seconds = 45 * 60;
+    const totalSeconds = seconds;
+    const timerText = document.getElementById('timerText');
+    const timerWrap = document.getElementById('timerWrap');
+    const timerCircle = document.getElementById('timerCircle');
+    const circumference = 2 * Math.PI * 26;
+
+    function tick() {
+        seconds--;
+        if (seconds < 0) { submitExam(true); return; }
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        timerText.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+        const pct = seconds / totalSeconds;
+        timerCircle.style.strokeDashoffset = circumference * (1 - pct);
+
+        timerWrap.classList.remove('warning', 'danger');
+        if (seconds <= 60) timerWrap.classList.add('danger');
+        else if (seconds <= 300) timerWrap.classList.add('warning');
+    }
+    setInterval(tick, 1000);
+
+    // === Submit modal ===
+    const modal = document.getElementById('submitModal');
+    const modalMsg = document.getElementById('modalMsg');
+
+    window.submitExam = function(skipConfirm) {
+        if (skipConfirm) {
+            reallySubmit();
+            return;
+        }
+        const answers = getAnswers();
+        const count = Object.keys(answers).length;
+        modalMsg.textContent = count === total
+            ? `All ${total} questions answered. Submit now?`
+            : `You've answered ${count} of ${total} questions. ${total - count} unanswered will be marked wrong.`;
+        modal.classList.add('show');
+    };
+
+    window.closeModal = () => modal.classList.remove('show');
+
+    window.confirmSubmit = () => reallySubmit();
+
+    function reallySubmit() {
+        // Build hidden form with all answers
+        const answers = getAnswers();
+        const form = document.getElementById('examForm');
+        form.innerHTML = '{% csrf_token %}';
+
+        cards.forEach(card => {
+            const qid = card.dataset.qid;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'q_' + qid;
+            input.value = answers['q_' + qid] || '';
+            form.appendChild(input);
+        });
+
+        form.submit();
+    }
+
+    // === Keyboard shortcuts ===
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') {
+            const val = e.target.value;
+            return;
+        }
+        const key = e.key.toUpperCase();
+        if (['A','B','C','D'].includes(key)) {
+            const card = cards[currentIndex];
+            const input = card.querySelector(`input[value="${key}"]`);
+            if (input) { input.checked = true; input.dispatchEvent(new Event('change')); }
+        }
+        if (e.key === 'ArrowRight') goNext();
+        if (e.key === 'ArrowLeft') goPrev();
+    });
+
+    // Initial progress update
+    updateProgress();
+})();
+</script>
+{% endblock %}
