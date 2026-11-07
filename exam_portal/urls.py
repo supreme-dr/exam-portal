@@ -19,4 +19,6 @@ urlpatterns = [
     path('result/<int:attempt_id>/', views.result_page, name='result_page'),
     path('scores/', views.view_scores, name='view_scores'),
     path('add-question/', views.add_question, name='add_question'),
+    path('db-test/', views.db_test, name='db_test'),
+    
 ]

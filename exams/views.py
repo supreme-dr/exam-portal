@@ -7,6 +7,14 @@ from django.utils import timezone
 from django.db.models import Avg, Max, Count
 from datetime import timedelta
 from .models import Question, ExamAttempt, StudentAnswer, Profile
+from django.http import JsonResponse
+from django.db import connection
+
+def db_test(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT version();")
+        version = cursor.fetchone()[0]
+    return JsonResponse({'database_version': version})
 
 
 def home(request):
