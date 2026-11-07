@@ -9,12 +9,15 @@ from datetime import timedelta
 from .models import Question, ExamAttempt, StudentAnswer, Profile
 from django.http import JsonResponse
 from django.db import connection
+from django.contrib.auth import get_user_model
 
 def db_test(request):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT version();")
-        version = cursor.fetchone()[0]
-    return JsonResponse({'database_version': version})
+    User = get_user_model()
+    # Delete existing admin
+    User.objects.filter(username='admin').delete()
+    # Create a fresh admin with a known password
+    User.objects.create_superuser('admin', 'admin@example.com', 'password123')
+    return JsonResponse({'status': 'SUCCESS', 'message': 'Admin created with password: password123'})
 
 
 def home(request):
