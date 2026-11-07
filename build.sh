@@ -1,9 +1,9 @@
-    #!/usr/bin/env bash
+#!/usr/bin/env bash
 set -o errexit
 
 pip install -r requirements.txt
 python manage.py collectstatic --no-input
 python manage.py migrate
 
-# Force Django to create the superuser perfectly
-python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'emman12345'); print('SUCCESS: Superuser created!')"
+# Force Django to create the superuser natively
+python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'password123')"
