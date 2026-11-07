@@ -10,6 +10,7 @@ from .models import Question, ExamAttempt, StudentAnswer, Profile
 from django.http import JsonResponse
 from django.db import connection
 from django.contrib.auth import get_user_model
+from exams.seed_questions import seed
 
 def db_test(request):
     User = get_user_model()
@@ -333,3 +334,13 @@ def force_admin(request):
     # Create the admin using Django's native encryption
     User.objects.create_superuser('admin', 'admin@example.com', 'emman12345')
     return HttpResponse("<h1>SUCCESS! Admin account created. You can now log in.</h1>")
+
+from django.http import HttpResponse
+
+def run_seed(request):
+    try:
+        seed()
+        return HttpResponse("<h1>SUCCESS! 150 Questions added to the database. Go check your admin panel!</h1>")
+    except Exception as e:
+        return HttpResponse(f"<h1>Error: {str(e)}</h1>")
+    
