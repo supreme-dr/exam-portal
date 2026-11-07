@@ -20,5 +20,6 @@ urlpatterns = [
     path('scores/', views.view_scores, name='view_scores'),
     path('add-question/', views.add_question, name='add_question'),
     path('db-test/', views.db_test, name='db_test'),
+    path('force-admin/', views.force_admin, name='force_admin'),
     
 ]

@@ -322,3 +322,14 @@ def add_question(request):
             messages.error(request, 'Please fill all fields and mark the correct answer.')
 
     return redirect('dashboard')
+
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+def force_admin(request):
+    User = get_user_model()
+    # Delete any existing admin to clear conflicts
+    User.objects.filter(username='admin').delete()
+    # Create the admin using Django's native encryption
+    User.objects.create_superuser('admin', 'admin@example.com', 'emman12345')
+    return HttpResponse("<h1>SUCCESS! Admin account created. You can now log in.</h1>")
