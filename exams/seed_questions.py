@@ -9,8 +9,6 @@ from django.contrib.auth.models import User
 
 admin_user = User.objects.filter(username='admin').first()
 
-# I have taken your 150 questions and formatted them perfectly for Django.
-# I used the correct answer as Option A and added 3 dummy wrong answers for B, C, D.
 questions_data = [
     # ===== FRENCH (50 Questions) =====
     ("French", "Comment tu t'appelles ?", "Je m'appelle Paul.", "J'ai dix ans.", "Ça va bien.", "J'habite à Lagos."),
@@ -64,59 +62,59 @@ questions_data = [
     ("French", "Que veux-tu devenir ?", "Je veux devenir médecin.", "Je veux devenir professeur.", "Je veux devenir pilote.", "Je veux devenir avocat."),
     ("French", "Comment dit-on merci en français ?", "Merci.", "Bonjour.", "Au revoir.", "S'il vous plaît."),
 
-    # ===== ENGLISH (50 Questions) =====
-        # ===== ENGLISH (50 Standard Questions) =====
-    ("English", "Choose the correct form of the verb: She ______ to school every day.", "goes", "go", "going", "gone"),
-    ("English", "What is the past tense of the verb 'buy'?", "bought", "buyed", "buys", "buying"),
-    ("English", "Identify the noun in this sentence: 'The quick brown fox jumps over the lazy dog.'", "fox", "quick", "jumps", "over"),
-    ("English", "Which of the following is an adjective?", "beautiful", "run", "quickly", "table"),
-    ("English", "Choose the correct pronoun: 'Give the book to ______.'", "him", "he", "his", "himself"),
-    ("English", "What is the plural form of 'child'?", "children", "childs", "childes", "child's"),
-    ("English", "Select the correct preposition: 'The cat is hiding ______ the bed.'", "under", "on", "at", "in"),
-    ("English", "What is the antonym of the word 'generous'?", "selfish", "kind", "giving", "wealthy"),
-    ("English", "Identify the adverb in the sentence: 'He ran incredibly fast.'", "incredibly", "ran", "fast", "he"),
-    ("English", "Which sentence is punctuated correctly?", "I went to the store, and I bought milk.", "I went to the store and i bought milk.", "I went to the store and bought milk,", "I went to the store; and bought milk."),
-    ("English", "What is the meaning of the idiom 'to let the cat out of the bag'?", "To reveal a secret accidentally", "To release an animal", "To cause trouble", "To tell a funny joke"),
-    ("English", "Choose the correct spelling:", "necessary", "neccessary", "necesary", "necessery"),
-    ("English", "What is the subject of this sentence? 'The tall building was built last year.'", "building", "tall", "built", "year"),
-    ("English", "Which word is a synonym for 'happy'?", "joyful", "sad", "angry", "tired"),
-    ("English", "Choose the correct article: 'I saw ______ elephant at the zoo.'", "an", "a", "the", "some"),
-    ("English", "What is the past participle of the verb 'write'?", "written", "wrote", "writed", "writing"),
-    ("English", "Identify the conjunction in this sentence: 'I wanted to go to the party, but I was too tired.'", "but", "wanted", "party", "tired"),
-    ("English", "What is the definition of a 'metaphor'?", "A comparison without using 'like' or 'as'", "A comparison using 'like' or 'as'", "An exaggeration", "A word that sounds like a sound"),
-    ("English", "Choose the correct conditional: 'If it rains tomorrow, I ______ stay at home.'", "will", "would", "did", "am"),
-    ("English", "What is the opposite of 'ancient'?", "modern", "old", "historic", "antique"),
-    ("English", "Which of these is a compound word?", "toothbrush", "quickly", "running", "unhappy"),
-    ("English", "What is the function of an exclamation mark (!)?", "To show strong emotion or surprise", "To end a question", "To separate items in a list", "To indicate a pause"),
-    ("English", "Choose the correct word: 'The team ______ playing well today.'", "is", "are", "were", "be"),
-    ("English", "What does the prefix 'pre-' mean?", "Before", "After", "Against", "Under"),
-    ("English", "Identify the direct object: 'She read the book quickly.'", "book", "she", "read", "quickly"),
-    ("English", "Which sentence is in the passive voice?", "The cake was eaten by the boy.", "The boy ate the cake.", "The boy is eating the cake.", "The boy will eat the cake."),
-    ("English", "What is a haiku?", "A Japanese poem with 5-7-5 syllables", "A long narrative poem", "A funny poem", "A poem that doesn't rhyme"),
-    ("English", "Choose the correct word: 'Their / There / They're going to the park.'", "They're", "Their", "There", "Theyre"),
-    ("English", "What is the meaning of 'ubiquitous'?", "Present everywhere at the same time", "Rare and hard to find", "Very large", "Extremely fast"),
-    ("English", "Identify the main clause: 'Although it was raining, we went for a walk.'", "we went for a walk", "Although it was raining", "it was raining", "for a walk"),
-    ("English", "What is the difference between 'affect' and 'effect'?", "Affect is usually a verb, effect is usually a noun.", "Affect is a noun, effect is a verb.", "They mean the exact same thing.", "Effect is used for people, affect for objects."),
-    ("English", "Choose the correct tag question: 'She is a doctor, ______?'", "isn't she", "is she", "does she", "isn't he"),
-    ("English", "What is a palindrome?", "A word that reads the same forwards and backwards", "A word with many syllables", "A word borrowed from another language", "A word that is spelled exactly as it sounds"),
-    ("English", "Which word means 'a place where books are kept'?", "Library", "Bookstore", "Museum", "Office"),
-    ("English", "Choose the correct tense: 'I ______ here since 2010.'", "have lived", "lived", "am living", "live"),
-    ("English", "What is the comparative form of 'good'?", "better", "gooder", "best", "more good"),
-    ("English", "Identify the error in this sentence: 'He don't like apples.'", "don't", "He", "like", "apples"),
-    ("English", "What is the meaning of the word 'benevolent'?", "Kind and generous", "Cruel and harsh", "Intelligent", "Wealthy"),
-    ("English", "Which sentence uses the semicolon correctly?", "I have a big test tomorrow; I can't go out tonight.", "I have a big test tomorrow; and I can't go out tonight.", "I have a big test tomorrow, I can't go out; tonight.", "I have a big test tomorrow I can't go out; tonight."),
-    ("English", "What is the term for a word that is opposite in meaning to another word?", "Antonym", "Synonym", "Homonym", "Acronym"),
-    ("English", "Choose the correct relative pronoun: 'The man ______ is wearing a hat is my uncle.'", "who", "which", "whose", "whom"),
-    ("English", "What is the primary purpose of a dictionary?", "To define words and provide their meanings", "To tell a story", "To teach mathematics", "To provide maps"),
-    ("English", "What does the phrase 'break the ice' mean?", "To start a conversation in an awkward situation", "To destroy frozen water", "To cause an accident", "To end a relationship"),
-    ("English", "Which word is correctly capitalized in a sentence?", "English", "french", "History", "science"),
-    ("English", "Choose the correct word: 'I have ______ money than you.'", "less", "fewer", "little", "few"),
-    ("English", "What is an onomatopoeia?", "A word that imitates a sound", "A word with a hidden meaning", "A very long word", "A word that is an antonym"),
-    ("English", "Identify the prepositional phrase: 'The dog ran into the house.'", "into the house", "The dog", "ran", "house"),
-    ("English", "What is the superlative form of 'beautiful'?", "most beautiful", "beautifuler", "beautifulest", "more beautiful"),
-    ("English", "Which sentence is grammatically correct?", "Neither of the boys has a book.", "Neither of the boys have a book.", "Neither of the boy has a book.", "Neither of the boys having a book."),
-    ("English", "What is the meaning of 'impromptu'?", "Done without preparation", "Carefully planned", "Very formal", "Long and boring"),
-    
+    # ===== ENGLISH (50 Advanced University Questions) =====
+    ("English", "Identify the literary device used in the phrase: 'The pen is mightier than the sword.'", "Metonymy", "Synecdoche", "Oxymoron", "Hyperbole"),
+    ("English", "What is the meaning of the word 'obfuscate'?", "To deliberately make something unclear or confusing", "To illuminate or clarify", "To speak loudly in public", "To destroy completely"),
+    ("English", "Choose the correct word: 'The committee ______ divided in their opinions regarding the new policy.'", "were", "was", "is", "has been"),
+    ("English", "Identify the syntactic function of the underlined phrase in: 'Having finished the exam, the student left the hall.'", "Participial phrase functioning as an adverbial", "Absolute phrase functioning as a noun", "Gerund phrase functioning as a subject", "Infinitive phrase functioning as an adjective"),
+    ("English", "Which philosopher introduced the concept of the 'categorical imperative' in ethics?", "Immanuel Kant", "John Stuart Mill", "Aristotle", "Friedrich Nietzsche"),
+    ("English", "What does the term 'anachronism' mean in literary analysis?", "A chronological inconsistency, such as an object out of its proper time period", "A reference to a historical event", "A recurring theme in a novel", "A character who serves as a foil to the protagonist"),
+    ("English", "Select the sentence that correctly uses the subjunctive mood.", "If I were you, I would accept the offer.", "If I was you, I would accept the offer.", "If I am you, I would accept the offer.", "If I be you, I would accept the offer."),
+    ("English", "What is the definition of 'epistemology'?", "The branch of philosophy concerned with the theory of knowledge", "The study of moral values", "The study of the origin of words", "The study of human societies"),
+    ("English", "Which word is a synonym for 'laconic'?", "Terse", "Verbose", "Eloquent", "Ambiguous"),
+    ("English", "Identify the rhetorical device used here: 'I have a dream that one day this nation will rise up and live out the true meaning of its creed.'", "Anaphora", "Asyndeton", "Polysyndeton", "Chiasmus"),
+    ("English", "What is the difference between 'irony' and 'sarcasm'?", "Irony is a gap between expectation and reality; sarcasm is a mocking form of irony directed at someone.", "Irony is spoken aloud; sarcasm is written.", "They are exactly the same.", "Sarcasm is used in literature; irony is used in speech."),
+    ("English", "Choose the correct term: A word or phrase that modifies an entire sentence rather than a single word is called a(n) ______.", "Disjunct", "Adjunct", "Conjunct", "Complement"),
+    ("English", "What is the meaning of the word 'perfunctory'?", "Done routinely with little interest or care", "Done with great enthusiasm", "Done in a highly detailed manner", "Done in secret"),
+    ("English", "Identify the figure of speech: 'The wind whispered through the trees.'", "Personification", "Onomatopoeia", "Alliteration", "Simile"),
+    ("English", "Which author wrote the novel 'Things Fall Apart'?", "Chinua Achebe", "Wole Soyinka", "Ngũgĩ wa Thiong'o", "Chimamanda Ngozi Adichie"),
+    ("English", "What is the grammatical term for a verb that takes a direct object?", "Transitive verb", "Intransitive verb", "Linking verb", "Auxiliary verb"),
+    ("English", "What does the word 'quixotic' mean?", "Exceedingly idealistic and unrealistic", "Extremely practical and grounded", "Fiercely competitive", "Bitterly cynical"),
+    ("English", "Identify the type of fallacy in this argument: 'You can't trust his opinion on the economy; he's just a plumber.'", "Ad hominem", "Straw man", "False dilemma", "Slippery slope"),
+    ("English", "What is the function of a 'gerund' in a sentence?", "It acts as a noun while retaining some verbal properties.", "It acts as an adjective describing a noun.", "It acts as an adverb modifying a verb.", "It acts as an interjection expressing emotion."),
+    ("English", "What is the difference between 'denotation' and 'connotation'?", "Denotation is the literal meaning; connotation is the emotional association.", "Denotation is the emotional meaning; connotation is the literal meaning.", "They are used only in poetry.", "Denotation refers to verbs; connotation refers to nouns."),
+    ("English", "Select the correct word: 'The company's profits have increased; ______, their stock price has risen.'", "consequently", "nevertheless", "however", "otherwise"),
+    ("English", "What is the definition of 'hubris' in Greek tragedy?", "Excessive pride or arrogance that leads to downfall", "A moment of sudden realization", "A fatal flaw in a character", "The purging of emotions through drama"),
+    ("English", "Identify the passive construction among these sentences.", "The report was submitted by the intern.", "The intern submitted the report.", "The intern is submitting the report.", "The intern will submit the report."),
+    ("English", "What is the meaning of the idiom 'to bite the bullet'?", "To endure a painful or difficult situation with courage", "To eat something unpleasant", "To make a sudden decision", "To speak without thinking"),
+    ("English", "Which word correctly completes the sentence: 'He was so ______ that he refused to change his mind despite all evidence.'", "obdurate", "amenable", "pliable", "yielding"),
+    ("English", "What is a 'malapropism'?", "The mistaken use of a word in place of a similar-sounding one", "A deliberate exaggeration for effect", "A phrase that combines two contradictory terms", "A joke based on wordplay"),
+    ("English", "Choose the correct form: 'Neither the teacher nor the students ______ present.'", "were", "was", "is", "has been"),
+    ("English", "What is the function of the word 'although' in a sentence?", "To introduce a subordinate clause expressing contrast", "To connect two independent clauses", "To emphasize a noun", "To form a question"),
+    ("English", "What is the meaning of 'juxtaposition' in literary analysis?", "Placing two elements side by side to highlight their contrast", "Repeating a word for emphasis", "Describing an event out of order", "Addressing an absent person as if present"),
+    ("English", "Which word is an antonym for 'ephemeral'?", "Permanent", "Fleeting", "Transient", "Momentary"),
+    ("English", "Identify the type of clause in brackets: 'The book [that you recommended] is excellent.'", "Relative clause", "Noun clause", "Adverbial clause", "Independent clause"),
+    ("English", "What does the phrase 'zeitgeist' mean?", "The defining spirit or mood of a particular period of history", "A type of German poetry", "A philosophical paradox", "A historical battle"),
+    ("English", "Which sentence uses the correct form of the past perfect tense?", "She had already left when I arrived.", "She has already left when I arrived.", "She already left when I arrived.", "She was already leaving when I arrived."),
+    ("English", "What is 'stream of consciousness' in literature?", "A narrative technique that captures a character's continuous flow of thoughts", "A story told entirely through dialogue", "A poem about nature", "A novel written in the future tense"),
+    ("English", "What is the meaning of 'sycophant'?", "A person who flatters others to gain advantage", "A person who is always honest", "A person who avoids conflict", "A person who loves reading"),
+    ("English", "Identify the literary term for a reference to a well-known person, place, or event from history or literature.", "Allusion", "Illusion", "Delusion", "Elusion"),
+    ("English", "What is the grammatical term for a word that takes the place of a noun?", "Pronoun", "Adverb", "Conjunction", "Preposition"),
+    ("English", "Which author is famous for the dystopian novel '1984'?", "George Orwell", "Aldous Huxley", "Ray Bradbury", "Margaret Atwood"),
+    ("English", "What is the difference between 'a few' and 'few'?", "'A few' means some; 'few' means not many, with a negative connotation.", "They mean exactly the same thing.", "'A few' is informal; 'few' is formal.", "'Few' means many; 'a few' means hardly any."),
+    ("English", "Identify the figure of speech: 'I've told you a million times not to exaggerate.'", "Hyperbole", "Understatement", "Litotes", "Euphemism"),
+    ("English", "What is the meaning of the word 'cacophony'?", "A harsh, discordant mixture of sounds", "A pleasing melody", "A type of poem", "A grammatical error"),
+    ("English", "Choose the correct sentence.", "The data indicate that the hypothesis is correct.", "The data indicates that the hypothesis is correct.", "The datas indicate that the hypothesis is correct.", "The data indicating that the hypothesis is correct."),
+    ("English", "What is a 'foil' in literary analysis?", "A character whose traits contrast with those of another character", "The main conflict in a story", "The setting of a novel", "A poem that doesn't rhyme"),
+    ("English", "What is the function of an apostrophe in grammar?", "To indicate possession or a contraction", "To indicate a pause in speech", "To introduce a list", "To end a sentence"),
+    ("English", "What is the meaning of 'pragmatic'?", "Dealing with things practically and realistically", "Being highly emotional", "Being overly idealistic", "Being aggressively argumentative"),
+    ("English", "Identify the correct use of 'who' vs. 'whom'.", "Who is the subject; whom is the object.", "Whom is the subject; who is the object.", "They can be used interchangeably.", "Who is used for animals; whom is used for people."),
+    ("English", "What is the 'subjunctive mood' used to express?", "Wishes, hypothetical situations, or demands", "Actions happening in the present", "Commands given to others", "Questions being asked"),
+    ("English", "What is the meaning of the word 'abhor'?", "To regard with disgust and hatred", "To accept willingly", "To speak loudly", "To repeat frequently"),
+    ("English", "Identify the theme of a text.", "The underlying message or central idea of a work", "The time and place of the story", "The sequence of events", "The author's biography"),
+    ("English", "Choose the correct word: 'The novel was adapted ______ a film.'", "into", "in", "to", "on"),
+        
+    # ===== YORUBA (50 Questions) =====
     ("Yoruba", "Kí ni orúkọ rẹ?", "Orúkọ mi ni Adé.", "Orúkọ mi ni Bọ́lá.", "Orúkọ mi ni Ṣadé.", "Orúkọ mi ni Túndé."),
     ("Yoruba", "Ọmọ ọdún mélòó ni ọ́?", "Ọmọ ọdún mẹ́wàá ni mí.", "Ọmọ ọdún méjì ni mí.", "Ọmọ ọdún mẹ́ta ni mí.", "Ọmọ ọdún márùn-ún ni mí."),
     ("Yoruba", "Ṣé àlàáfíà ni?", "Àlàáfíà ni.", "Béẹ̀ kọ́.", "Mo dúpẹ́.", "Ó dàbọ̀."),
@@ -181,7 +179,7 @@ def seed():
                 option_b=opt_b,
                 option_c=opt_c,
                 option_d=opt_d,
-                correct_answer='A', # Assuming the first option is always correct
+                correct_answer='A',
                 created_by=admin_user
             )
             count += 1
@@ -189,4 +187,4 @@ def seed():
 
 if __name__ == '__main__':
     seed()
-    
+        
